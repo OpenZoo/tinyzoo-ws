@@ -64,7 +64,7 @@ static void oop_after_potential_stat_list_change() {
 	} else {
 		uint8_t* data_loc = zoo_stat_data + oop_stat->data_ofs;
 		ZOO_SWITCH_ROM(data_loc[2]);
-		uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+		uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 		oop_pos = oop_stat->data_pos;
 		oop_prog_loc = prog_loc;
 		oop_code_loc = oop_prog_loc + 5 + oop_pos;
@@ -86,9 +86,9 @@ bool oop_find_label_in_stat(uint8_t stat_id, uint8_t label_id, bool zapped, uint
 
 	uint8_t *data_loc = zoo_stat_data + stat->data_ofs;
 	ZOO_SWITCH_ROM(data_loc[2]);
-	uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+	uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 
-	uint16_t label_offset = *((uint16_t*) (prog_loc + 3));
+	uint16_t label_offset = *((uint16_t __far*) (prog_loc + 3));
 	if (label_offset == 0) {
 		goto FindLabelReturn;
 	}
@@ -99,7 +99,7 @@ bool oop_find_label_in_stat(uint8_t stat_id, uint8_t label_id, bool zapped, uint
 		uint8_t label_id_at_loc = *(label_loc++);
 		if (label_id_at_loc == label_id) {
 			uint8_t __far* data_zap_loc = data_loc + 4 + (i >> 3);
-			find_label_loc = (*((uint16_t*) label_loc));
+			find_label_loc = (*((uint16_t __far*) label_loc));
 			uint8_t zap_mask = (1 << (i & 7));
 			bool find_label_zapped = ((*data_zap_loc) & zap_mask) != 0;
 			if (find_label_zapped == zapped) {
@@ -128,8 +128,6 @@ FindLabelReturn:
 }
 
 bool oop_send(uint8_t stat_id, bool respect_self_lock, uint8_t label_id, bool ignore_lock) {
-	return false; // TODO WS
-
 	if (oop_find_label_in_stat(stat_id, label_id, false, SET_ZAP_NONE)) {
 		zoo_stat_t *stat = &ZOO_STAT(stat_id);
 
@@ -172,7 +170,7 @@ bool oop_send_target(uint8_t target_id, bool respect_self_lock, uint8_t label_id
 				if (stat->data_ofs != 0xFFFF) {
 					uint8_t *data_loc = zoo_stat_data + stat->data_ofs;
 					ZOO_SWITCH_ROM(data_loc[2]);
-					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 					if (target_id == prog_loc[0]) {
 						if (oop_send(stat_id, respect_self_lock, label_id, ignore_lock)) {
 							result = true;
@@ -223,7 +221,7 @@ void oop_zap_target(uint8_t target_id, uint8_t label_id, oop_zap_proc zap_proc) 
 				} else {
 					uint8_t *data_loc = zoo_stat_data + stat->data_ofs;
 					ZOO_SWITCH_ROM(data_loc[2]);
-					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 					if (target_id == prog_loc[0]) {
 						zap_proc(stat_id, label_id, false);
 					}
@@ -500,10 +498,11 @@ static const oop_command_proc __far oop_give_procs[] = {
 	game_update_sidebar_gems_time
 };
 
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 static void oop_command_give(void) {
 	uint8_t ptr_id = *(oop_code_loc++);
 	int16_t *ptr = oop_give_ptrs[ptr_id];
-	int16_t val = *((int16_t*) oop_code_loc);
+	int16_t val = *((int16_t __far*) oop_code_loc);
 	oop_code_loc += 2;
 	val += *ptr;
 	if (val >= 0) {
@@ -618,7 +617,7 @@ static void oop_command_bind(void) {
 		if (stat->data_ofs != 0xFFFF) {
 			uint8_t *data_loc = zoo_stat_data + stat->data_ofs;
 			ZOO_SWITCH_ROM(data_loc[2]);
-			uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+			uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 			if (target_id == prog_loc[0]) {
 				if (oop_stat_id == stat_id) break;
 
@@ -668,7 +667,7 @@ static void oop_command_viewport(void) {
 				if (stat->data_ofs != 0xFFFF) {
 					uint8_t *data_loc = zoo_stat_data + stat->data_ofs;
 					ZOO_SWITCH_ROM(data_loc[2]);
-					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) data_loc));
+					uint8_t __far* prog_loc = MK_FP(0x2000, *((uint16_t*) data_loc));
 					if (target == prog_loc[0]) {
 						viewport_focus_stat = stat_id;
 						break;
@@ -717,7 +716,7 @@ static void oop_command_text_line(void) {
 	oop_window_zzt_lines += zzt_line_count;
 
 	while ((line_count--) > 0) {
-		txtwind_append(*((uint16_t*) oop_code_loc), oop_code_loc[2]);
+		txtwind_append(*((uint16_t __far*) oop_code_loc), oop_code_loc[2]);
 		oop_code_loc += 3;
 	}
 }
@@ -793,9 +792,8 @@ static const uint8_t __far oop_ins_cost[] = {
 
 bool oop_handle_txtwind(void);
 
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 bool oop_execute(uint8_t stat_id, const char __far* name) {
-	return false; // TODO WS
-
 	uint8_t prev_bank = _current_bank;
 
 	oop_stat_id = stat_id;
@@ -816,7 +814,7 @@ OopStartParsing:
 	// EMU_printf("executing stat %u @ %d,%d %x:%x, pos %u", stat_id, oop_stat->x, oop_stat->y, oop_data_loc[2], *((uint16_t __far*) MK_FP(0x2000, oop_data_loc)), oop_pos);
 #endif
 
-	uint8_t __far* prog_loc = MK_FP(0x2000, *((uint8_t**) oop_data_loc));
+	oop_prog_loc = MK_FP(0x2000, *((uint16_t*) oop_data_loc));
 	oop_code_loc = oop_prog_loc + 5 + oop_pos;
 	oop_stop_running = 0;
 	oop_replace_element = 255;

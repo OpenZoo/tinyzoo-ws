@@ -12,7 +12,7 @@
 #define TXTWIND_LINE_HEADER_LEN 2
 #define TXTWIND_LINE_AFTER_LEN 2
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t type;
 	uint8_t len;
 	uint8_t text[MAX_TXTWIND_LINE_WIDTH + TXTWIND_LINE_AFTER_LEN];

@@ -7,7 +7,7 @@
 #include "gamevars.h"
 #include "sram_alloc.h"
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t flags;
 	uint16_t size;
 } sram_entry_t;

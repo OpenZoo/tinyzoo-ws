@@ -6,7 +6,7 @@
 #include "config.h"
 #include "gamevars.h"
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t bank;
 	int16_t position;
 } sram_ptr_t;

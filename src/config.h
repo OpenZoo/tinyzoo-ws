@@ -6,7 +6,7 @@
 #define MAX_BOARD 101
 
 #define FEAT_BLACK_KEYS
-#define FEAT_BOARD_TRANSITIONS
+// #define FEAT_BOARD_TRANSITIONS
 #define BUGFIX_BLINKWALL_OFFSET
 // #define BUGFIX_DIE_UNDER
 #define BUGFIX_DIEMOVE_SCROLL
@@ -19,12 +19,8 @@
 // adds 81 bytes, performance untested
 // #define OPT_UNROLL_LINE_DRAW
 
-// saves 124 (!!!) bytes of RAM; however, loses 124 bytes of bank0 ROM
-// this makes some parts of the board edge immutable
-#define OPT_BOARD_EDGE_IMMUTABLE
-
 // #define RESET_SAVE_ON_START
-// #define SHOW_TITLE
+#define SHOW_TITLE
 // #define HACK_HIDE_STATUSBAR
 // #define HACK_PLAYER_INVINCIBLE
 #define SHOW_CHEATS

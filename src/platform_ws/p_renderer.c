@@ -13,29 +13,53 @@
 #define COL_LVL_2 10
 #define COL_LVL_3 15
 
+// #define USE_COLOR_RENDERER system_color_present()
+#define USE_COLOR_RENDERER 0
+
 const uint8_t __far ws_subpal_idx[16] = {
-	4, 5, 6, 7, 12, 13, 14, 15,
-	4, 5, 6, 7, 12, 13, 14, 15
+	0, 1, 2, 3, 8, 9, 10, 11,
+	0, 1, 2, 3, 8, 9, 10, 11
 };
 
 const uint16_t __far ws_subpal_tile[16] = {
-	SCR_ENTRY_PALETTE(4),
-	SCR_ENTRY_PALETTE(5),
-	SCR_ENTRY_PALETTE(6),
-	SCR_ENTRY_PALETTE(7),
-	SCR_ENTRY_PALETTE(12),
-	SCR_ENTRY_PALETTE(13),
-	SCR_ENTRY_PALETTE(14),
-	SCR_ENTRY_PALETTE(15),
-	SCR_ENTRY_PALETTE(4) | 0x100,
-	SCR_ENTRY_PALETTE(5) | 0x100,
-	SCR_ENTRY_PALETTE(6) | 0x100,
-	SCR_ENTRY_PALETTE(7) | 0x100,
-	SCR_ENTRY_PALETTE(12) | 0x100,
-	SCR_ENTRY_PALETTE(13) | 0x100,
-	SCR_ENTRY_PALETTE(14) | 0x100,
-	SCR_ENTRY_PALETTE(15) | 0x100
+	SCR_ENTRY_PALETTE(0),
+	SCR_ENTRY_PALETTE(1),
+	SCR_ENTRY_PALETTE(2),
+	SCR_ENTRY_PALETTE(3),
+	SCR_ENTRY_PALETTE(8),
+	SCR_ENTRY_PALETTE(9),
+	SCR_ENTRY_PALETTE(10),
+	SCR_ENTRY_PALETTE(11),
+	SCR_ENTRY_PALETTE(0) | 0x100,
+	SCR_ENTRY_PALETTE(1) | 0x100,
+	SCR_ENTRY_PALETTE(2) | 0x100,
+	SCR_ENTRY_PALETTE(3) | 0x100,
+	SCR_ENTRY_PALETTE(8) | 0x100,
+	SCR_ENTRY_PALETTE(9) | 0x100,
+	SCR_ENTRY_PALETTE(10) | 0x100,
+	SCR_ENTRY_PALETTE(11) | 0x100
 };
+
+const uint16_t __far ws_subpal_tile_mono[16] = {
+	SCR_ENTRY_PALETTE(11), // 0
+	SCR_ENTRY_PALETTE(10),
+	SCR_ENTRY_PALETTE(3),
+	SCR_ENTRY_PALETTE(3),
+	SCR_ENTRY_PALETTE(9), // 4
+	SCR_ENTRY_PALETTE(9),
+	SCR_ENTRY_PALETTE(8),
+	SCR_ENTRY_PALETTE(2),
+	SCR_ENTRY_PALETTE(8), // 8
+	SCR_ENTRY_PALETTE(8),
+	SCR_ENTRY_PALETTE(1),
+	SCR_ENTRY_PALETTE(1),
+	SCR_ENTRY_PALETTE(3), // 12
+	SCR_ENTRY_PALETTE(3),
+	SCR_ENTRY_PALETTE(0),
+	SCR_ENTRY_PALETTE(0)
+};
+
+#define WS_SUBPAL_TRANS 0x800
 
 const uint16_t __far ws_palette[16] = {
 	RGB(COL_LVL_0, COL_LVL_0, COL_LVL_0),
@@ -76,14 +100,21 @@ void font_8x8_install(volatile uint8_t *vptr, uint8_t color_bg, uint8_t color_fg
 	}
 }
 
+void text_set_opaque_bg(uint8_t color) {
+	for (uint8_t i = 0; i < 8; i++) {
+		MEM_COLOR_PALETTE(ws_subpal_idx[i])[0] = ws_palette[color];
+	}
+}
+
 void text_init(uint8_t mode) {
 	if (mode > RENDER_MODE_TITLE) {
 		draw_offset_x = 0;
 		draw_offset_y = 0;
 	}
 
-	if (system_color_present()) {
-		outportw(IO_DISPLAY_CTRL, 0);
+	outportw(IO_DISPLAY_CTRL, 0);
+
+	if (USE_COLOR_RENDERER) {
 		system_set_mode(MODE_COLOR);
 
 		// set palettes
@@ -91,11 +122,15 @@ void text_init(uint8_t mode) {
 			MEM_COLOR_PALETTE(ws_subpal_idx[i])[0] = 0x0000;
 			MEM_COLOR_PALETTE(ws_subpal_idx[i])[1] = ws_palette[i];
 			MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = ws_palette[i + 8];
+
+			MEM_COLOR_PALETTE(ws_subpal_idx[i] | 4)[0] = 0x0000;
+			MEM_COLOR_PALETTE(ws_subpal_idx[i] | 4)[1] = ws_palette[i];
+			MEM_COLOR_PALETTE(ws_subpal_idx[i] | 4)[2] = ws_palette[i + 8];
 		}
 
 		// fill bg / fg
 		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		video_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+		video_screen_fill(0x6800, 0 | WS_SUBPAL_TRANS | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		font_8x8_install(0x2000, 0, 1);
 		font_8x8_install(0x3000, 0, 2);
@@ -104,8 +139,23 @@ void text_init(uint8_t mode) {
 		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
 		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE);
 	} else {
-		// TODO: WS mono compat
-		while(1);
+		video_shade_lut_set(GRAY_LUT(0, 3, 5, 7, 9, 11, 13, 15));
+
+		// fill bg / fg
+		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		video_screen_fill(0x6800, 0 | WS_SUBPAL_TRANS | ws_subpal_tile[0], 0, 0, 32, 32);
+
+		// set palettes
+		for (uint8_t i = 0; i < 8; i++) {
+			outportw(0x20 + (ws_subpal_idx[i] << 1), i << 4);
+			outportw(0x28 + (ws_subpal_idx[i] << 1), i << 4);
+		}
+
+		font_8x8_install(0x2000, 0, 1);
+
+		// configure screen 1 (bg) / 2 (fg)
+		outportb(IO_SCR_BASE, SCR1_BASE(0x3000) | SCR2_BASE(0x3800));
+		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE);
 	}
 }
 
@@ -124,8 +174,14 @@ void text_undraw(uint8_t x, uint8_t y) {
 void text_draw(uint8_t x, uint8_t y, uint8_t chr, uint8_t col) {
 	x = (x + draw_offset_x) & 0x1F;
 	y = (y + draw_offset_y) & 0x1F;
-	video_screen_put(0x6000, 219 | ws_subpal_tile[col >> 4], x, y);
-	video_screen_put(0x6800, chr | ws_subpal_tile[col & 0xF], x, y);
+	uint16_t offset = (y << 6) | (x << 1);
+	if (USE_COLOR_RENDERER) {
+		*((volatile uint16_t*) (0x6000 + offset)) = 219 | ws_subpal_tile[(col & 0x70) >> 4];
+		*((volatile uint16_t*) (0x6800 + offset)) = chr | WS_SUBPAL_TRANS | ws_subpal_tile[col & 0x0F];
+	} else {
+		*((volatile uint16_t*) (0x3000 + offset)) = 219 | ws_subpal_tile_mono[(col & 0x70) >> 4];
+		*((volatile uint16_t*) (0x3800 + offset)) = chr | WS_SUBPAL_TRANS | ws_subpal_tile_mono[col & 0x0F];
+	}
 }
 
 void text_free_line(uint8_t y) {

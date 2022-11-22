@@ -7,18 +7,18 @@
 extern uint16_t dhsecs;
 extern uint8_t vbl_ticks;
 
-void __attribute__ ((interrupt, save_all)) timer_int_handler(void) {
-	dhsecs += 11;
-	outportb(IO_INT_ACK, INTR_MASK_HBLANK_TIMER);
-}
+extern void timer_int_handler(void);
 
-void __attribute__ ((interrupt, save_all)) vblank_int_handler(void) {
+void __attribute__((interrupt)) vblank_int_handler(void) {
 	vbl_ticks++;
+
 	input_update_vbl();
+
 #ifdef FEAT_BOARD_TRANSITIONS
 	game_transition_step();
 #endif
-	outportb(IO_INT_ACK, INTR_MASK_VBLANK);
+
+	system_ack_hw_int(INTR_MASK_VBLANK);
 }
 
 void vbl_timer_init(void) {

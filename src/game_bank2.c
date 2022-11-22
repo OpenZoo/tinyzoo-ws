@@ -40,19 +40,13 @@ void board_create(bool full_create) {
 	
 	zoo_board_info.max_shots = 255;
 
-#ifndef OPT_BOARD_EDGE_IMMUTABLE
 	for (uint8_t iy = 0; iy <= BOARD_HEIGHT + 1; iy++) {
-#else
-	for (uint8_t iy = 0; iy <= BOARD_HEIGHT; iy++) {
-#endif
 		ZOO_TILE(0, iy).element = E_BOARD_EDGE;
 		ZOO_TILE(BOARD_WIDTH + 1, iy).element = E_BOARD_EDGE;
 	}
 	for (uint8_t ix = 1; ix <= BOARD_WIDTH; ix++) {
 		ZOO_TILE(ix, 0).element = E_BOARD_EDGE;
-#ifndef OPT_BOARD_EDGE_IMMUTABLE
 		ZOO_TILE(ix, BOARD_HEIGHT + 1).element = E_BOARD_EDGE;
-#endif
 	}
 	for (uint8_t iy = 1; iy <= BOARD_HEIGHT; iy++) {
 		ZOO_TILE_COPY(ZOO_TILE(1, iy), TileNormal);

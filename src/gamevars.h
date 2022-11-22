@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "config.h"
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	void *ptr;
 	uint8_t bank;
 } far_ptr_t;
@@ -31,13 +31,13 @@ typedef struct {
 #define COLOR_WHITE_ON_CHOICE 0xFE
 #define COLOR_CHOICE_ON_CHOICE 0xFD
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t element;
 	uint8_t color;
 } zoo_tile_t;
 
 // 16 bytes per stat
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t x, y;
 	int8_t step_x, step_y;
 	uint8_t cycle;
@@ -63,7 +63,7 @@ typedef void (*zoo_element_touch_proc)(uint8_t x, uint8_t y, int8_t *dx, int8_t 
 #define BOARD_IS_DARK 0x01
 #define BOARD_REENTER_WHEN_ZAPPED 0x02
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t max_shots;
 	uint8_t flags;
 	uint8_t neighbor_boards[4];
@@ -72,7 +72,7 @@ typedef struct {
 	int16_t time_limit_sec;
 } zoo_board_info_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	int16_t ammo;
 	int16_t gems;
 	uint8_t keys;
@@ -100,11 +100,11 @@ typedef struct {
 #define MSG_FLAG2_GEM 0x02
 #define MSG_FLAG2_ENERGIZER 0x04
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t f1, f2;
 } zoo_message_flags_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t world_id;
 	bool paused;
 	bool play_exit_requested;

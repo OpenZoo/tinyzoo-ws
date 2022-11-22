@@ -20,7 +20,7 @@ extern uint16_t input_keys, input_held;
 #define input_start_pressed ((input_held & KEY_START) != 0)
 #define input_shift_pressed input_a_pressed
 
-void __attribute__ ((save_all)) input_update_vbl(void);
+void input_update_vbl(void);
 void input_reset(void);
 void input_update(void);
 void input_wait_clear(void);
