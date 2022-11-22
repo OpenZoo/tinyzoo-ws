@@ -204,6 +204,15 @@ void game_scrolling_view(void) {
 	int8_t old_vy = viewport_y;
 
 	input_wait_clear();
+
+#ifndef HACK_HIDE_STATUSBAR
+	viewport_full_board = true;
+	if (viewport_y > VIEWPORT_MAX_Y) {
+		scroll_viewport_to(viewport_x, VIEWPORT_MAX_Y, false);
+		text_update();
+	}
+#endif
+
 	wait_vbl_done();
 	text_reinit(RENDER_MODE_TITLE);
 
@@ -226,6 +235,10 @@ void game_scrolling_view(void) {
 			text_update();
 		}
 	}
+
+#ifndef HACK_HIDE_STATUSBAR
+	viewport_full_board = false;
+#endif
 
 	input_wait_clear();
 

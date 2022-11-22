@@ -7,7 +7,7 @@
 #define VIEWPORT_MIN_X 1
 #define VIEWPORT_MAX_X (BOARD_WIDTH - VIEWPORT_WIDTH + 1)
 #define VIEWPORT_MIN_Y 1
-#define VIEWPORT_MAX_Y (BOARD_HEIGHT - VIEWPORT_HEIGHT + 1)
+#define VIEWPORT_MAX_Y (BOARD_HEIGHT - VIEWPORT_HEIGHT + (viewport_full_board ? 1 : 2))
 
 extern const zoo_stat_t __far stat_template_default;
 extern const int8_t __far neighbor_delta_x[4];
@@ -15,6 +15,7 @@ extern const int8_t __far neighbor_delta_y[4];
 extern const int8_t __far diagonal_delta_x[8];
 extern const int8_t __far diagonal_delta_y[8];
 
+extern bool viewport_full_board;
 extern int8_t viewport_x;
 extern int8_t viewport_y;
 extern uint8_t viewport_focus_stat;
