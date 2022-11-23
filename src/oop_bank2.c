@@ -180,18 +180,18 @@ bool oop_handle_txtwind(void) {
 		switch (txtwind_lines) {
 			case 1:
 				sidebar_show_message(NULL, 3, NULL, 3,
-					(const char*) (*((uint16_t**) (sram_ptr_data))) + TWL_OFS, sram_ptr_data[2]);
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data)))) + TWL_OFS, sram_ptr_data[2]);
 				break;
 			case 2:
 				sidebar_show_message(NULL, 3,
-					(const char*) (*((uint16_t**) (sram_ptr_data))) + TWL_OFS, sram_ptr_data[2],
-					(const char*) (*((uint16_t**) (sram_ptr_data + 3))) + TWL_OFS, sram_ptr_data[5]);
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data)))) + TWL_OFS, sram_ptr_data[2],
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data + 3)))) + TWL_OFS, sram_ptr_data[5]);
 				break;
 			default:
 				sidebar_show_message(
-					(const char*) (*((uint16_t**) (sram_ptr_data))) + TWL_OFS, sram_ptr_data[2],
-					(const char*) (*((uint16_t**) (sram_ptr_data + 3))) + TWL_OFS, sram_ptr_data[5],
-					(const char*) (*((uint16_t**) (sram_ptr_data + 6))) + TWL_OFS, sram_ptr_data[8]);
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data)))) + TWL_OFS, sram_ptr_data[2],
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data + 3)))) + TWL_OFS, sram_ptr_data[5],
+					MK_FP(0x2000, (*((uint16_t**) (sram_ptr_data + 6)))) + TWL_OFS, sram_ptr_data[8]);
 				break;
 		}
 

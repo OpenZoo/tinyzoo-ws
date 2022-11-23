@@ -84,7 +84,7 @@ void board_enter_stage2(void) {
 
 void board_enter_stage3(void) {
 	if ((zoo_board_info.flags & BOARD_IS_DARK) && !(msg_flags.f1 & MSG_FLAG1_HINT_TORCH)) {
-		display_message(200, msg_torch_hint_line1, msg_torch_hint_line2, msg_torch_hint_line3);
+		display_message(200, NULL, msg_torch_hint_line1, msg_torch_hint_line2);
 		msg_flags.f1 |= MSG_FLAG1_HINT_TORCH;
 	}
 }
@@ -119,6 +119,7 @@ void board_undraw_tile(uint8_t x, uint8_t y) {
 	text_undraw(vx, vy);
 }
 
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 void board_draw_tile(uint8_t x, uint8_t y) {
 	// Viewport check
 	uint8_t vx = x - viewport_x;
@@ -216,50 +217,11 @@ SetDuration:
 void display_message(uint8_t time, const char __far* line1, const char __far* line2, const char __far* line3) {
 	init_display_message(time, line3 != NULL);
 	if (line3 != NULL) {
-		sidebar_show_message(line1, 3, line2, 3, line3, 3);
+		sidebar_show_message(line1, 255, line2, 255, line3, 255);
 	}
 }
 
 uint8_t get_stat_id_at(uint8_t x, uint8_t y) {
-#if defined(SM83)
-	x; y;
-__asm
-	ld		c, a
-	; (hl) - stat pointer
-	; a - compared value
-	; ec (high, low) - checked value
-	; d - counter (down)
-	; b - max stat count
-	ldh		a, (_zoo_stat_count)
-	inc		a
-	ld		d, a
-	ld		b, a
-	ld		hl, #(_zoo_stats+16)
-GetStatIdAtLoop:
-	ld		a, (hl+)
-	cp		a, c
-	ld		a, (hl+)
-	jr		nz, GetStatIdAtNotFound
-	cp		a, e
-	jr		nz, GetStatIdAtNotFound
-	ld		a, b
-	sub		a, d
-	ret
-GetStatIdAtNotFound:
-	; hl += 14
-	ld		a, l
-	add		a, #14
-	ld		l, a
-	adc		a, h
-	sub		a, l
-        ld              h, a
-	; d -= 1
-	dec		d
-	jr		nz, GetStatIdAtLoop
-GetStatIdFinished:
-	ld      	a, #0xff
-__endasm;
-#else
 	zoo_stat_t *stat = zoo_stats + 1;
 
 	for (uint8_t i = 0; i <= zoo_stat_count; i++, stat++) {
@@ -268,7 +230,6 @@ __endasm;
 	}
 
 	return STAT_ID_NONE;
-#endif
 }
 
 void add_stat(uint8_t tx, uint8_t ty, uint8_t element, uint8_t color, uint8_t cycle, const zoo_stat_t __far* template) {

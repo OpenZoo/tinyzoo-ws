@@ -36,7 +36,7 @@ with (
 		i: str = i.strip()
 		if "=" in i:
 			kv = i.split("=", maxsplit=1)
-			print("extern const char %s[];" % kv[0], file = fp_h)
+			print("extern const char __far %s[];" % kv[0], file = fp_h)
 			print("const char __far %s[] = {" % kv[0], file = fp_c)
 			vb = kv[1].encode("CP437")
 			if format == "length_prefixed_string":

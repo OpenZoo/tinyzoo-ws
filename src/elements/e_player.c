@@ -14,6 +14,7 @@ uint8_t ElementPlayerDraw(uint8_t x, uint8_t y) {
 	return (zoo_world_info.energizer_ticks & 1) ? 0x01 : 0x02;
 }
 
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 void ElementPlayerTick(uint8_t stat_id) {
 	zoo_stat_t *stat = &ZOO_STAT(stat_id);
 	uint8_t sx = stat->x;
@@ -62,12 +63,12 @@ void ElementPlayerTick(uint8_t stat_id) {
 		if (player_dir_x != 0 || player_dir_y != 0) {
 			if (zoo_board_info.max_shots == 0) {
 				if (!(msg_flags.f1 & MSG_FLAG1_NO_SHOOTING)) {
-					display_message(200, NULL, msg_no_shooting_line1, msg_no_shooting_line2);
+					display_message(200, NULL, NULL, msg_no_shooting);
 					msg_flags.f1 |= MSG_FLAG1_NO_SHOOTING;
 				}
 			} else if (zoo_world_info.ammo == 0) {
 				if (!(msg_flags.f1 & MSG_FLAG1_OUT_OF_AMMO)) {
-					display_message(200, NULL, msg_out_of_line1, msg_out_of_ammo_line2);
+					display_message(200, NULL, NULL, msg_out_of_ammo);
 					msg_flags.f1 |= MSG_FLAG1_OUT_OF_AMMO;
 				}
 			} else {
@@ -130,7 +131,7 @@ NoShootMove:
 				}
 			} else {
 				if (!(msg_flags.f1 & MSG_FLAG1_OUT_OF_TORCHES)) {
-					display_message(200, NULL, msg_out_of_line1, msg_out_of_torches_line2);
+					display_message(200, NULL, NULL, msg_out_of_torches);
 					msg_flags.f1 |= MSG_FLAG1_OUT_OF_TORCHES;
 				}
 			}

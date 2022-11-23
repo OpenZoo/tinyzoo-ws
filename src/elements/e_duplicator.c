@@ -16,6 +16,7 @@ uint8_t ElementDuplicatorDraw(uint8_t x, uint8_t y) {
 }
 
 // Warning: No READBOUNDS
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 void ElementDuplicatorTick(uint8_t stat_id) {
 	zoo_stat_t *stat = &ZOO_STAT(stat_id);
 	uint8_t sx = stat->x;

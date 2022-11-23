@@ -53,7 +53,7 @@ void ElementTorchTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 	game_update_sidebar_torches();
 
 	if (!(msg_flags.f1 & MSG_FLAG1_TORCH)) {
-		display_message(200, msg_torch_pickup_line1, msg_torch_pickup_line2, msg_torch_pickup_line3);
+		display_message(200, NULL, msg_torch_pickup_line1, msg_torch_pickup_line2);
 		msg_flags.f1 |= MSG_FLAG1_TORCH;
 	}
 
@@ -72,7 +72,7 @@ void ElementGemTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 	sound_queue(2, sound_gem_pickup);
 
 	if (!(msg_flags.f2 & MSG_FLAG2_GEM)) {
-		display_message(200, NULL, msg_gem_pickup_line1, msg_gem_pickup_line2);
+		display_message(200, NULL, NULL, msg_gem_pickup);
 		msg_flags.f2 |= MSG_FLAG2_GEM;
 	}
 }

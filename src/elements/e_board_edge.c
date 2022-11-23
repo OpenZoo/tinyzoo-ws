@@ -12,6 +12,7 @@ extern bool move_stat_enable_scroll;
 extern int8_t viewport_x;
 extern int8_t viewport_y;
 
+__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 void ElementBoardEdgeTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 	uint8_t entry_x = ZOO_STAT(0).x;
 	uint8_t entry_y = ZOO_STAT(0).y;
