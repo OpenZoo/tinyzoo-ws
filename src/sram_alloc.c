@@ -53,28 +53,25 @@ void sram_write8(sram_ptr_t *ptr, uint8_t value) {
 }
 
 void sram_read(sram_ptr_t *ptr, uint8_t *data, uint16_t len) {
-#if 0
+#if 1
 	while (len > 0) {
 		ZOO_SWITCH_RAM(ptr->bank);
 
 		uint16_t len_to_read = len;
-		if (ptr->position > 0) {
-			uint16_t max_len = (ptr->position - 1) ^ 0xFFFF;
-			if (len_to_read > max_len) {
-				len_to_read = max_len;
-			}
-		} else {
-			memcpy(data, ((uint8_t*) (SRAM_ADDRESS + ptr->position)), len_to_read);
-		}
+		if ((ptr->position + len) < ptr->position) {
+			len_to_read = 65536 - ptr->position;
+			len -= len_to_read;
 
-		if (len_to_read > len) {
-			len_to_read = len;
-			memcpy(data, ((uint8_t*) (SRAM_ADDRESS + ptr->position)), len_to_read);
-			sram_add_ptr(ptr, len_to_read);
-		} else {
+			memcpy(data, MK_FP(0x1000, ptr->position), len_to_read);
+
 			ptr->bank++;
 			ptr->position = 0;
+		} else {
+			memcpy(data, MK_FP(0x1000, ptr->position), len_to_read);
+
+			ptr->position += len_to_read;
 		}
+
 		data += len_to_read;
 		len -= len_to_read;
 	}
@@ -86,20 +83,25 @@ void sram_read(sram_ptr_t *ptr, uint8_t *data, uint16_t len) {
 }
 
 void sram_write(sram_ptr_t *ptr, const uint8_t __far* data, uint16_t len) {
-#if 0
+#if 1
 	while (len > 0) {
 		ZOO_SWITCH_RAM(ptr->bank);
 
-		uint16_t len_to_read = SRAM_BANK_SIZE - ptr->position;
-		if (len_to_read > len) {
-			len_to_read = len;
-			memcpy(((uint8_t*) (SRAM_ADDRESS + ptr->position)), data, len_to_read);
-			sram_add_ptr(ptr, len_to_read);
-		} else {
-			memcpy(((uint8_t*) (SRAM_ADDRESS + ptr->position)), data, len_to_read);
+		uint16_t len_to_read = len;
+		if ((ptr->position + len) < ptr->position) {
+			len_to_read = 65536 - ptr->position;
+			len -= len_to_read;
+
+			memcpy(MK_FP(0x1000, ptr->position), data, len_to_read);
+
 			ptr->bank++;
 			ptr->position = 0;
+		} else {
+			memcpy(MK_FP(0x1000, ptr->position), data, len_to_read);
+
+			ptr->position += len_to_read;
 		}
+
 		data += len_to_read;
 		len -= len_to_read;
 	}

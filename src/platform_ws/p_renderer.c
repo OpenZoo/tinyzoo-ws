@@ -97,19 +97,20 @@ uint8_t draw_offset_x;
 uint8_t draw_offset_y;
 uint8_t renderer_scrolling;
 
-void font_8x8_install(volatile uint8_t *vptr, uint8_t color_bg, uint8_t color_fg) {
-	uint8_t mask_bg_1 = ((color_bg & 1) ? 0xFF : 0x00);
-	uint8_t mask_bg_2 = ((color_bg & 2) ? 0xFF : 0x00);
-	uint8_t mask_fg_1 = ((color_fg & 1) ? 0xFF : 0x00);
-	uint8_t mask_fg_2 = ((color_fg & 2) ? 0xFF : 0x00);
-
+void font_8x8_install(volatile uint8_t *vptr, bool col2) {
 	const uint8_t __far *fptr = _font_default_bin;
-	for (uint16_t i = 0; i < 2048; i++, fptr++) {
-		uint8_t vf = *fptr;
-		uint8_t v1 = (mask_bg_1 & (~vf)) | (mask_fg_1 & (vf));
-		uint8_t v2 = (mask_bg_2 & (~vf)) | (mask_fg_2 & (vf));
-		*(vptr++) = v1;
-		*(vptr++) = v2;
+	if (col2) {
+		for (uint16_t i = 0; i < 2048; i++, fptr++) {
+			uint8_t vf = *fptr;
+			*(vptr++) = 0x00;
+			*(vptr++) = vf;
+		}
+	} else {
+		for (uint16_t i = 0; i < 2048; i++, fptr++) {
+			uint8_t vf = *fptr;
+			*(vptr++) = vf;
+			*(vptr++) = 0x00;
+		}
 	}
 }
 
@@ -151,8 +152,8 @@ void text_init(uint8_t mode) {
 		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
 		video_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
-		font_8x8_install(0x2000, 0, 1);
-		font_8x8_install(0x3000, 0, 2);
+		font_8x8_install(0x2000, false);
+		font_8x8_install(0x3000, true);;
 
 		sidebar_sprite_table = 0x7000;
 
@@ -171,7 +172,7 @@ void text_init(uint8_t mode) {
 			outportw(0x20 + (ws_subpal_idx[i] << 1), i << 4);
 		}
 
-		font_8x8_install(0x2000, 0, 1);
+		font_8x8_install(0x2000, false);
 
 		// TODO: sidebar sprite table
 

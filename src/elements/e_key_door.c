@@ -8,26 +8,26 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
-const char __far* msg_key_pickup_get(uint8_t x);
-const char __far* msg_door_open_get(uint8_t x);
+extern const char __far* msg_key_pickup[];
+extern const char __far* msg_door_open[];
 
 static void show_key_pickup_no(uint8_t key) {
-	display_message(200, NULL, msg_key_pickup_no, msg_key_pickup_get(key));
+	display_message(200, NULL, msg_key_pickup_no, msg_key_pickup[key & 0x07]);
 	sound_queue(2, sound_key_failure);
 }
 
 static void show_key_pickup_yes(uint8_t key) {
-	display_message(200, NULL, msg_key_pickup_yes, msg_key_pickup_get(key));
+	display_message(200, NULL, msg_key_pickup_yes, msg_key_pickup[key & 0x07]);
 	sound_queue(2, sound_key_success);
 }
 
 static void show_door_open_no(uint8_t key) {
-	display_message(200, NULL, msg_door_open_get(key), msg_door_open_no);
+	display_message(200, NULL, msg_door_open[key & 0x07], msg_door_open_no);
 	sound_queue(3, sound_door_failure);
 }
 
 static void show_door_open_yes(uint8_t key) {
-	display_message(200, NULL, msg_door_open_get(key), msg_door_open_yes);
+	display_message(200, NULL, msg_door_open[key & 0x07], msg_door_open_yes);
 	sound_queue(3, sound_door_success);
 }
 
