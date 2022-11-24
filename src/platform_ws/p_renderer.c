@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "renderer_sidebar.h"
 #include "../../res/font_default.h"
+#include "../../res/font_small.h"
 
 #define COL_LVL_0 0
 #define COL_LVL_1 5
@@ -22,6 +23,8 @@ const uint8_t __far ws_subpal_idx[16] = {
 	4, 5, 6, 7, 12, 13, 14, 15
 };
 
+uint8_t *sidebar_tile_data;
+
 // palettes:
 // 4, 5, 6, 7, 12, 13, 14, 15 - text mode emulation
 #define PAL_SIDEBAR0 8
@@ -30,22 +33,22 @@ const uint8_t __far ws_subpal_idx[16] = {
 #define PAL_MESSAGE 11
 
 const uint16_t __far ws_subpal_tile[16] = {
-	SCR_ENTRY_PALETTE(4),
-	SCR_ENTRY_PALETTE(5),
-	SCR_ENTRY_PALETTE(6),
-	SCR_ENTRY_PALETTE(7),
-	SCR_ENTRY_PALETTE(12),
-	SCR_ENTRY_PALETTE(13),
-	SCR_ENTRY_PALETTE(14),
-	SCR_ENTRY_PALETTE(15),
-	SCR_ENTRY_PALETTE(4) | 0x100,
-	SCR_ENTRY_PALETTE(5) | 0x100,
-	SCR_ENTRY_PALETTE(6) | 0x100,
-	SCR_ENTRY_PALETTE(7) | 0x100,
-	SCR_ENTRY_PALETTE(12) | 0x100,
-	SCR_ENTRY_PALETTE(13) | 0x100,
-	SCR_ENTRY_PALETTE(14) | 0x100,
-	SCR_ENTRY_PALETTE(15) | 0x100
+	SCR_ENTRY_PALETTE(4) | 0x0000,
+	SCR_ENTRY_PALETTE(5) | 0x0000,
+	SCR_ENTRY_PALETTE(6) | 0x0000,
+	SCR_ENTRY_PALETTE(7) | 0x0000,
+	SCR_ENTRY_PALETTE(12) | 0x0000,
+	SCR_ENTRY_PALETTE(13) | 0x0000,
+	SCR_ENTRY_PALETTE(14) | 0x0000,
+	SCR_ENTRY_PALETTE(15) | 0x0000,
+	SCR_ENTRY_PALETTE(4) | 0x2000,
+	SCR_ENTRY_PALETTE(5) | 0x2000,
+	SCR_ENTRY_PALETTE(6) | 0x2000,
+	SCR_ENTRY_PALETTE(7) | 0x2000,
+	SCR_ENTRY_PALETTE(12) | 0x2000,
+	SCR_ENTRY_PALETTE(13) | 0x2000,
+	SCR_ENTRY_PALETTE(14) | 0x2000,
+	SCR_ENTRY_PALETTE(15) | 0x2000
 };
 
 const uint8_t __far ws_subpal_idx_mono[16] = {
@@ -129,7 +132,19 @@ void text_set_sidebar_height(uint8_t height) {
 
 uint16_t *sidebar_sprite_table;
 
+static const uint8_t __far ws_sidebar_palettes[28] = {
+        PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 0
+	PAL_SIDEBAR1, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 8
+        PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 16
+        PAL_SIDEBAR2, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 24
+        PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 32
+	PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 40
+	PAL_SIDEBAR1, PAL_SIDEBAR1, PAL_SIDEBAR2, PAL_SIDEBAR0  // 48
+};
+
 void text_init(uint8_t mode) {
+	uint16_t sidebar_tile_offset;
+
 	if (mode > RENDER_MODE_TITLE) {
 		draw_offset_x = 0;
 		draw_offset_y = 0;
@@ -147,15 +162,28 @@ void text_init(uint8_t mode) {
 			MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = ws_palette[i + 8];
 		}
 		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[0] = ws_palette[1];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[1] = ws_palette[13];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[2] = ws_palette[14];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[3] = ws_palette[15];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[0] = ws_palette[1];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[1] = ws_palette[9];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[2] = ws_palette[10];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[3] = ws_palette[11];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[0] = ws_palette[1];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[1] = ws_palette[12];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[2] = ws_palette[13];
+		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = ws_palette[6];
 
 		// fill bg / fg
 		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
 		video_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		font_8x8_install(0x2000, false);
-		font_8x8_install(0x3000, true);;
+		font_8x8_install(0x4000, true);
 
 		sidebar_sprite_table = 0x7000;
+		sidebar_tile_data = 0x3000;
+		sidebar_tile_offset = 256;
 
 		// configure screen 1 (bg) / 2 (fg)
 		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
@@ -185,7 +213,13 @@ void text_init(uint8_t mode) {
 
 	// populate sprite table
 	uint16_t *table = sidebar_sprite_table;
-	for (uint16_t i = 0; i < 112; i++) {
+	uint16_t i;
+	for (i = 0; i < 28; i++) {
+		*(table++) = SCR_ENTRY_PALETTE((uint16_t) ws_sidebar_palettes[i]) | (sidebar_tile_offset + i) | (1 << 13);
+		*(table++) = (i << 11) | 136;
+	}
+
+	for (; i < 112; i++) {
 		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
 		*(table++) = ((i % 28) << 11) | (136 - ((i / 28) << 3));
 	}

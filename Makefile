@@ -32,7 +32,7 @@ $(TARGET_MONO): $(TARGET)
 	cp $(TARGET) $(TARGET_MONO)
 
 $(TARGET): $(OBJECTS) $(BINFILE)
-	$(SWANLINK) -v -o $@ -a $(BINFILE) --ram-type SRAM_128KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
+	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_128KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -O2 -c -o $@ $<

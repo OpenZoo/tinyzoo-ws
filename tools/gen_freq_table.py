@@ -57,7 +57,7 @@ for i in FREQS:
 			i = math.floor(1193182.0 / i)
 			# PIT de-transformation
 			i = 1193182.0 / i
-		i = round(2048 - (131072.0 / i)) | 0x8000
+		i = round(2048 - (96000.0 / i))
 	print("\t%d," % i)
 
 print("};")
