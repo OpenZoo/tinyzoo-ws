@@ -1,4 +1,4 @@
-// gamevars.h - game state variables
+	// gamevars.h - game state variables
 
 #ifndef __GAMEVARS_H__
 #define __GAMEVARS_H__

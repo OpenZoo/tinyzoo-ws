@@ -8,5 +8,7 @@ python3 tools/bin2c.py --bank 3 res/font_small.c res/font_small.h res/font_small
 echo "[ Compiling message constants ]"
 python3 tools/gen_message_consts.py res/message_consts.properties res/message_consts.inc res/message_consts.h
 python3 tools/gen_message_consts.py res/menu_entry_consts.properties res/menu_entry_consts.inc res/menu_entry_consts.h text_window_message
+echo "[ Compiling transition tables ]"
+python3 tools/gen_transition_table.py res/game_transition_table.inc 28 18
 echo "[ Compiling text messages ]"
 python3 tools/gen_static_txtwind_data.py res/license.txt res/txtwind_license.inc txtwind_license_data
