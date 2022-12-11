@@ -89,6 +89,7 @@ static uint8_t txtwind_run_txtwind(void) {
 		wait_vbl_done();
 		wait_vbl_done();
 		wait_vbl_done();
+		wait_vbl_done();
 
 		if (input_keys & KEY_UP) {
 			if (pos > -8) {

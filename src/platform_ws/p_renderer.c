@@ -220,10 +220,14 @@ void text_init(uint8_t mode) {
 	text_set_sidebar_height(0);
 	uint16_t *table = sidebar_sprite_table;
 	uint16_t i = 0;
+#ifdef HACK_HIDE_STATUSBAR
+	i = 28;
+#else
 	for (; i < 28; i++) {
 		*(table++) = SCR_ENTRY_PALETTE((uint16_t) ws_sidebar_palettes[i]) | (sidebar_tile_offset + i) | (1 << 13);
 		*(table++) = (i << 11) | 136;
 	}
+#endif
 
 	for (; i < 112; i++) {
 		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
@@ -327,11 +331,7 @@ static uint8_t sidebar_show_line(const uint8_t __far* line, uint8_t sb_offset) {
 
 void sidebar_show_message(const char __far* line1, uint8_t bank1, const char __far* line2, uint8_t bank2, const char __far* line3, uint8_t bank3) {
 	text_set_sidebar_height(1);
-#ifdef HACK_HIDE_STATUSBAR
-        uint8_t sb_offset = 0;
-#else
         uint8_t sb_offset = 28;
-#endif
 
         uint8_t prev_bank = _current_bank;
         ZOO_SWITCH_ROM(bank3);
