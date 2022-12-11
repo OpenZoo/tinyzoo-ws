@@ -11,7 +11,7 @@ void game_update_sidebar_health(void) {
 		zoo_world_info.health = 0;
 	}
 
-	sidebar_draw_panel(0, 2, 3, zoo_world_info.health, true);
+	sidebar_draw_panel(0, 2, 1, zoo_world_info.health, true);
 #endif
 }
 
@@ -24,7 +24,7 @@ void game_update_sidebar_ammo(void) {
 void game_update_sidebar_gems_time(void) {
 #ifndef HACK_HIDE_STATUSBAR
 	if (zoo_board_info.time_limit_sec > 0) {
-		sidebar_draw_panel(40, 'T', 3, zoo_board_info.time_limit_sec - zoo_world_info.board_time_sec, true);
+		sidebar_draw_panel(40, 'T', 1, zoo_board_info.time_limit_sec - zoo_world_info.board_time_sec, true);
 	} else {
 		sidebar_draw_empty(40, 8);
 	}
@@ -40,7 +40,7 @@ void game_update_sidebar_torches(void) {
 
 void game_update_sidebar_score(void) {
 #ifndef HACK_HIDE_STATUSBAR
-	sidebar_draw_panel(32, '+', 3, zoo_world_info.score, true);
+	sidebar_draw_panel(32, '+', 1, zoo_world_info.score, true);
 #endif
 }
 

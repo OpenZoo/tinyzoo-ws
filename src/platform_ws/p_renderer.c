@@ -5,6 +5,7 @@
 
 #include "bank_switch.h"
 #include "gamevars.h"
+#include "p_renderer.h"
 #include "renderer.h"
 #include "renderer_sidebar.h"
 #include "../../res/font_default.h"
@@ -15,9 +16,6 @@
 #define COL_LVL_2 10
 #define COL_LVL_3 15
 
-#define USE_COLOR_RENDERER ws_system_is_color()
-// #define USE_COLOR_RENDERER 0
-
 const uint8_t __far ws_subpal_idx[16] = {
 	4, 5, 6, 7, 12, 13, 14, 15,
 	4, 5, 6, 7, 12, 13, 14, 15
@@ -25,13 +23,6 @@ const uint8_t __far ws_subpal_idx[16] = {
 
 uint8_t renderer_mode;
 uint8_t *sidebar_tile_data;
-
-// palettes:
-// 4, 5, 6, 7, 12, 13, 14, 15 - text mode emulation
-#define PAL_SIDEBAR0 8
-#define PAL_SIDEBAR1 9
-#define PAL_SIDEBAR2 10
-#define PAL_MESSAGE 11
 
 const uint16_t __far ws_subpal_tile[16] = {
 	SCR_ENTRY_PALETTE(4) | 0x0000,
@@ -126,12 +117,18 @@ void text_set_opaque_bg(uint8_t color) {
 
 void text_set_sidebar_height(uint8_t height) {
 #ifdef HACK_HIDE_STATUSBAR
-	if (height > 0) height--;
+	uint8_t first = 28;
+#else
+	uint8_t first = renderer_mode == RENDER_MODE_TITLE ? 28 : 0;
 #endif
-	outportb(IO_SPR_COUNT, height * 28);
+	uint8_t count = height * 28;
+	if (count >= first) count -= first;
+	outportb(IO_SPR_FIRST, first);
+	outportb(IO_SPR_COUNT, count);
 }
 
 uint16_t *sidebar_sprite_table;
+uint16_t *screen1_table;
 
 static const uint8_t __far ws_sidebar_palettes[28] = {
         PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 0
@@ -142,6 +139,28 @@ static const uint8_t __far ws_sidebar_palettes[28] = {
 	PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, PAL_SIDEBAR0, // 40
 	PAL_SIDEBAR1, PAL_SIDEBAR1, PAL_SIDEBAR2, PAL_SIDEBAR0  // 48
 };
+
+static void text_rebuild_color_palette(const uint16_t __far* palette) {
+	for (uint8_t i = 0; i < 8; i++) {
+		MEM_COLOR_PALETTE(ws_subpal_idx[i])[1] = palette[i];
+		MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = palette[i + 8];
+	}
+	MEM_COLOR_PALETTE(PAL_MENU)[0] = palette[0];
+	MEM_COLOR_PALETTE(PAL_MENU)[1] = palette[15];
+	MEM_COLOR_PALETTE(PAL_MENU)[2] = palette[12];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[0] = palette[1];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[1] = palette[15];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[2] = palette[14];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[3] = palette[13];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[0] = palette[1];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[1] = palette[9];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[2] = palette[10];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[3] = palette[11];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[0] = palette[1];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[1] = palette[12];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[2] = palette[13];
+	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = palette[6];
+}
 
 void text_init(uint8_t mode) {
 	uint16_t sidebar_tile_offset;
@@ -156,24 +175,7 @@ void text_init(uint8_t mode) {
 
 	if (USE_COLOR_RENDERER) {
 		ws_mode_set(WS_MODE_COLOR);
-
-		// set palettes
-		for (uint8_t i = 0; i < 8; i++) {
-			MEM_COLOR_PALETTE(ws_subpal_idx[i])[1] = ws_palette[i];
-			MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = ws_palette[i + 8];
-		}
-		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[0] = ws_palette[1];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[1] = ws_palette[13];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[2] = ws_palette[14];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR0)[3] = ws_palette[15];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[0] = ws_palette[1];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[1] = ws_palette[9];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[2] = ws_palette[10];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR1)[3] = ws_palette[11];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[0] = ws_palette[1];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[1] = ws_palette[12];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[2] = ws_palette[13];
-		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = ws_palette[6];
+		text_rebuild_color_palette(ws_palette);
 
 		// fill bg / fg
 		ws_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
@@ -189,6 +191,8 @@ void text_init(uint8_t mode) {
 		// configure screen 1 (bg) / 2 (fg)
 		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
 		outportb(IO_SPR_BASE, SPR_BASE(0x7000));
+
+		screen1_table = (uint16_t*) 0x6000;
 	} else {
 		ws_display_set_shade_lut(SHADE_LUT(0, 3, 5, 7, 9, 11, 13, 15));
 
@@ -223,22 +227,36 @@ void text_init(uint8_t mode) {
 
 	for (; i < 112; i++) {
 		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
-		*(table++) = ((i % 28) << 11) | (136 - ((i / 28) << 3));
+		table++;
 	}
-
-	// enable display
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
 
 	text_reinit(mode);
 }
 
 void text_reinit(uint8_t mode) {
+	renderer_mode = mode;
+
 	if (mode == RENDER_MODE_PLAYFIELD) {
 		text_set_sidebar_height(1);
 	} else {
 		text_set_sidebar_height(0);
 	}
-	renderer_mode = mode;
+
+	uint16_t *table = sidebar_sprite_table + 56;
+#ifdef HACK_HIDE_STATUSBAR
+	uint8_t y_offset = 136;
+#else
+	uint8_t y_offset = mode == RENDER_MODE_TITLE ? 136 : 128;
+#endif
+        for (uint8_t i = 0; i < 84; i++) {
+		table++;
+                *(table++) = ((i % 28) << 11) | (y_offset - ((i / 28) << 3));
+        }
+
+	// enable display (in some modes)
+/*	if (mode <= RENDER_MODE_TITLE) */{
+		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
+	}
 }
 
 void text_sync_hblank_safe(void) {

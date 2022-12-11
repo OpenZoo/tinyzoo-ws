@@ -29,7 +29,8 @@ static void sidebar_draw_char(uint8_t x, uint8_t chr, uint8_t col) {
         } else {
                 if (col == 2) tile_data++;
                 for (i = 0; i < 8; i++) {
-                        *(tile_data++) = font_data[i] & mask;
+                        uint8_t f = font_data[i] & mask;
+                        *(tile_data++) |= f;
                         tile_data++;
                 }
         }
@@ -58,11 +59,11 @@ void sidebar_draw_panel(uint8_t x, uint8_t chr, uint8_t col, int16_t value, bool
 DrawFullNumber:
 		// six tiles
 		if (value < 0) {
-			sidebar_draw_char(offset++, '-', 3);
+			sidebar_draw_char(offset++, '-', 1);
 			value = -value;
 		}
 		if (value == 0) {
-			sidebar_draw_char(offset, '0', 3);
+			sidebar_draw_char(offset, '0', 1);
 		} else {
 			uint8_t text_pos = 5;
 			while (value > 0) {
@@ -70,24 +71,26 @@ DrawFullNumber:
 				value /= 10;
 			}
 			while (text_pos < 5) {
-				sidebar_draw_char(offset++, text[text_pos++], 3);
+				sidebar_draw_char(offset++, text[text_pos++], 1);
 			}
 		}
 	} else {
+#if 0
 		if (value <= -100) {
 			// TODO?
-			sidebar_draw_char(offset++, '?', 3);
+			sidebar_draw_char(offset++, '?', 1);
 		} else if (value >= 10000) {
-			sidebar_draw_char(offset++, (value / 10000) + 48, 3);
-			sidebar_draw_char(offset++, zoo_mods16_8((value / 1000), 10) + 48, 3);
-			sidebar_draw_char(offset++, 'K', 3);
+			sidebar_draw_char(offset++, (value / 10000) + 48, 1);
+			sidebar_draw_char(offset++, zoo_mods16_8((value / 1000), 10) + 48, 1);
+			sidebar_draw_char(offset++, 'K', 1);
 		} else if (value >= 1000) {
-			sidebar_draw_char(offset++, (value / 1000) + 48, 3);
-			sidebar_draw_char(offset++, 'K', 3);
+			sidebar_draw_char(offset++, (value / 1000) + 48, 1);
+			sidebar_draw_char(offset++, 'K', 1);
 			if (value > 0) {
-				sidebar_draw_char(offset++, '+', 3);
+				sidebar_draw_char(offset++, '+', 1);
 			}
 		} else goto DrawFullNumber;
+#endif
 	}
 }
 
@@ -100,5 +103,5 @@ void sidebar_draw_keys(uint8_t x, uint8_t value) {
 	if (value & 0x10) sidebar_draw_char(x + 4, 0x0C, 1);
 	if (value & 0x20) sidebar_draw_char(x + 5, 0x0C, 2);
 	if (value & 0x40) sidebar_draw_char(x + 6, 0x0C, 2);
-	if (value & 0x80) sidebar_draw_char(x + 7, 0x0C, 3);
+	if (value & 0x80) sidebar_draw_char(x + 7, 0x0C, 1);
 }

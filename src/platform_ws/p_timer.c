@@ -36,6 +36,8 @@ void timer_init(void) {
 	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
 	outportb(IO_SND_VOL_CH4, 0x77);
 	outportb(IO_SND_VOL_CH2_VOICE, IO_SND_VOL_CH2_HALF);
+	outportb(IO_SND_OUT_CTRL,
+		SND_OUT_VOLUME_100 | SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE);
 
 	for (uint8_t i = 0; i < 16; i++) {
 		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;

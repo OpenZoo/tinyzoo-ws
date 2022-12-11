@@ -57,14 +57,14 @@ static void game_menu_act_about(void) {
 #ifdef SHOW_CHEATS
 static void game_menu_act_trainer(void) {
 	txtwind_init();
-	txtwind_append((uint16_t) menu_entry_trainer_zap, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_health, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_ammo, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_keys, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_torches, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_time, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_gems, 3);
-	txtwind_append((uint16_t) menu_entry_trainer_dark, 3);
+	txtwind_append_rom(menu_entry_trainer_zap);
+	txtwind_append_rom(menu_entry_trainer_health);
+	txtwind_append_rom(menu_entry_trainer_ammo);
+	txtwind_append_rom(menu_entry_trainer_keys);
+	txtwind_append_rom(menu_entry_trainer_torches);
+	txtwind_append_rom(menu_entry_trainer_time);
+	txtwind_append_rom(menu_entry_trainer_gems);
+	txtwind_append_rom(menu_entry_trainer_dark);
 	switch (txtwind_run(RENDER_MODE_MENU)) {
 	case 0: {
 		for (uint8_t i = 0; i < 4; i++) {
@@ -95,12 +95,12 @@ MenuStart:
 	if (zoo_world_info.health <= 0) {
 		// "Game Over" menu
 		txtwind_init();
-		txtwind_append((uint16_t) menu_entry_new_game, 3);
-		txtwind_append((uint16_t) menu_entry_continue, 3);
-		txtwind_append((uint16_t) menu_entry_about, 3);
+		txtwind_append_rom(menu_entry_new_game);
+		txtwind_append_rom(menu_entry_continue);
+		txtwind_append_rom(menu_entry_about);
 #ifdef SHOW_CHEATS
 		if (cheat_active == 255) {
-			txtwind_append((uint16_t) menu_entry_trainer, 3);
+			txtwind_append_rom(menu_entry_trainer);
 		}
 #endif
 		switch (txtwind_run(RENDER_MODE_MENU)) {
@@ -127,12 +127,12 @@ MenuStart:
 	} else {
 		// Regular menu
 		txtwind_init();
-		txtwind_append((uint16_t) menu_entry_continue, 3);
-		txtwind_append((uint16_t) menu_entry_restart, 3);
-		txtwind_append((uint16_t) menu_entry_about, 3);
+		txtwind_append_rom(menu_entry_continue);
+		txtwind_append_rom(menu_entry_restart);
+		txtwind_append_rom(menu_entry_about);
 #ifdef SHOW_CHEATS
 		if (cheat_active == 255) {
-			txtwind_append((uint16_t) menu_entry_trainer, 3);
+			txtwind_append_rom(menu_entry_trainer);
 		}
 #endif
 		switch (txtwind_run(RENDER_MODE_MENU)) {

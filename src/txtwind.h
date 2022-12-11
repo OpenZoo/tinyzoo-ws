@@ -8,7 +8,7 @@
 #define TXTWIND_LINE_TYPE_REGULAR 0
 #define TXTWIND_LINE_TYPE_CENTERED 1
 #define TXTWIND_LINE_TYPE_HYPERLINK 2
-#define MAX_TXTWIND_LINE_WIDTH 20
+#define MAX_TXTWIND_LINE_WIDTH 28
 #define TXTWIND_LINE_HEADER_LEN 2
 #define TXTWIND_LINE_AFTER_LEN 2
 
@@ -28,6 +28,7 @@ void txtwind_read_line(int16_t idx, txtwind_line_t *line);
 
 void txtwind_init(void);
 void txtwind_append(uint16_t line_ptr, uint8_t line_bank);
+void txtwind_append_rom(const void __far* line_ptr);
 void txtwind_open_license(void);
 uint8_t txtwind_run(uint8_t render_mode);
 

@@ -35,11 +35,18 @@ void txtwind_append(uint16_t line_ptr, uint8_t line_bank) {
 	txtwind_lines++;
 }
 
+void txtwind_append_rom(const void __far* line_ptr) {
+	uint32_t linear_ptr = (((uint32_t) line_ptr) >> 12) + ((uint16_t) ((uint32_t) line_ptr));
+	uint8_t bank = (uint8_t) (linear_ptr >> 16);
+	uint16_t offset = (uint16_t) linear_ptr;
+	txtwind_append(offset, bank);
+}
+
 static void txtwind_open_static(const uint8_t __far* data) {
 	txtwind_init();
 	const uint16_t __far* data_line = (const uint16_t __far*) data;
 	while (*data_line != 0) {
-		txtwind_append(((uint16_t) data) + (*(data_line++)), _current_bank);
+		txtwind_append_rom(data + (*(data_line++)));
 	}
 }
 
