@@ -4,6 +4,17 @@
 #include <stdint.h>
 #include "gamevars.h"
 
+extern int8_t viewport_x;
+extern int8_t viewport_y;
+extern uint8_t viewport_focus_stat;
+extern bool viewport_focus_locked;
+
+#ifdef HACK_HIDE_STATUSBAR
+#define viewport_full_board true
+#else
+extern bool viewport_full_board;
+#endif
+
 #define VIEWPORT_MIN_X 1
 #define VIEWPORT_MAX_X (BOARD_WIDTH - VIEWPORT_WIDTH + 1)
 #define VIEWPORT_MIN_Y 1
@@ -14,12 +25,6 @@ extern const int8_t __far neighbor_delta_x[4];
 extern const int8_t __far neighbor_delta_y[4];
 extern const int8_t __far diagonal_delta_x[8];
 extern const int8_t __far diagonal_delta_y[8];
-
-extern bool viewport_full_board;
-extern int8_t viewport_x;
-extern int8_t viewport_y;
-extern uint8_t viewport_focus_stat;
-extern bool viewport_focus_locked;
 
 // game.c (bank 0)
 

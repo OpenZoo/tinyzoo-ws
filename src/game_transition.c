@@ -46,6 +46,14 @@ bool game_transition_running(void) {
 	return transition_pos < (TRANSITION_TABLE_28_18_ENTRY_COUNT * 2);
 }
 
+void game_transition_fill(uint8_t color) {
+	for (uint8_t y = 0; y < 18; y++) {
+		for (uint8_t x = 0; x < 28; x++) {
+			text_draw(x, y, 178, color);
+		}
+	}
+}
+
 #endif
 
 /* void game_transition_tick_to_end(void) {

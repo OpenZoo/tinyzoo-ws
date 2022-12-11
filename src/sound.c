@@ -1,5 +1,6 @@
 #include <string.h>
 #include "config.h"
+#include "renderer.h"
 #include "timer.h"
 
 uint8_t sound_buffer[MAX_SOUND_BUFFER_SIZE];

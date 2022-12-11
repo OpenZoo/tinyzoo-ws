@@ -4,6 +4,7 @@
 #include <ws.h>
 
 #include "bank_switch.h"
+#include "game.h"
 #include "gamevars.h"
 #include "p_renderer.h"
 #include "renderer.h"
@@ -88,8 +89,8 @@ const uint16_t __far ws_palette[16] = {
 	RGB(COL_LVL_3, COL_LVL_3, COL_LVL_3)
 };
 
-uint8_t draw_offset_x;
-uint8_t draw_offset_y;
+uint8_t draw_offset_x = 0;
+uint8_t draw_offset_y = 7;
 uint8_t renderer_scrolling;
 
 void font_8x8_install(volatile uint8_t *vptr, bool col2) {
@@ -145,6 +146,12 @@ static void text_rebuild_color_palette(const uint16_t __far* palette) {
 		MEM_COLOR_PALETTE(ws_subpal_idx[i])[1] = palette[i];
 		MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = palette[i + 8];
 	}
+	// border colors
+	MEM_COLOR_PALETTE(PAL_NONE)[0] = palette[0];
+	MEM_COLOR_PALETTE(PAL_NONE)[1] = palette[0];
+	MEM_COLOR_PALETTE(PAL_NONE)[2] = palette[1];
+	MEM_COLOR_PALETTE(PAL_NONE)[3] = palette[0];
+
 	MEM_COLOR_PALETTE(PAL_MENU)[0] = palette[0];
 	MEM_COLOR_PALETTE(PAL_MENU)[1] = palette[15];
 	MEM_COLOR_PALETTE(PAL_MENU)[2] = palette[12];
@@ -162,61 +169,8 @@ static void text_rebuild_color_palette(const uint16_t __far* palette) {
 	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = palette[6];
 }
 
-void text_init(uint8_t mode) {
-	uint16_t sidebar_tile_offset;
-
-	if (mode > RENDER_MODE_TITLE) {
-		draw_offset_x = 0;
-		draw_offset_y = 0;
-	}
-
-	outportw(IO_DISPLAY_CTRL, 0);
-	outportb(IO_SPR_FIRST, 0);
-
-	if (USE_COLOR_RENDERER) {
-		ws_mode_set(WS_MODE_COLOR);
-		text_rebuild_color_palette(ws_palette);
-
-		// fill bg / fg
-		ws_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		ws_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
-
-		font_8x8_install(0x2000, false);
-		font_8x8_install(0x4000, true);
-
-		sidebar_sprite_table = 0x7000;
-		sidebar_tile_data = 0x3000;
-		sidebar_tile_offset = 256;
-
-		// configure screen 1 (bg) / 2 (fg)
-		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
-		outportb(IO_SPR_BASE, SPR_BASE(0x7000));
-
-		screen1_table = (uint16_t*) 0x6000;
-	} else {
-		ws_display_set_shade_lut(SHADE_LUT(0, 3, 5, 7, 9, 11, 13, 15));
-
-		// fill bg / fg
-		ws_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		ws_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
-
-		// set palettes
-		for (uint8_t i = 0; i < 8; i++) {
-			outportw(0x20 + (ws_subpal_idx[i] << 1), i << 4);
-		}
-
-		font_8x8_install(0x2000, false);
-
-		// TODO: sidebar sprite table
-
-		// configure screen 1 (bg) / 2 (fg)
-		outportb(IO_SCR_BASE, SCR1_BASE(0x3000) | SCR2_BASE(0x3800));
-	}
-
-	text_set_opaque_bg(1);
-	sidebar_set_message_color(0x0F);
-
-	// populate sprite table
+static void text_rebuild_sprite_table(void) {
+	uint16_t sidebar_tile_offset = 256;
 	text_set_sidebar_height(0);
 	uint16_t *table = sidebar_sprite_table;
 	uint16_t i = 0;
@@ -233,6 +187,68 @@ void text_init(uint8_t mode) {
 		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
 		table++;
 	}
+}
+
+void text_init(uint8_t mode) {
+	if (mode > RENDER_MODE_TITLE) {
+		draw_offset_x = 0;
+		draw_offset_y = 7;
+	}
+
+	outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
+	outportb(IO_SPR_FIRST, 0);
+
+	if (USE_COLOR_RENDERER) {
+		ws_mode_set(WS_MODE_COLOR);
+		text_rebuild_color_palette(ws_palette);
+
+		// fill bg / fg
+		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+
+		font_8x8_install((uint8_t*) 0x2000, false);
+		font_8x8_install((uint8_t*) 0x4000, true);
+
+		sidebar_sprite_table = (uint16_t*) 0x7000;
+		sidebar_tile_data = (uint8_t*) 0x3000;
+
+		// configure screen 1 (bg) / 2 (fg)
+		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
+		outportb(IO_SPR_BASE, SPR_BASE(0x7000));
+
+		screen1_table = (uint16_t*) 0x6000;
+
+		text_rebuild_sprite_table();
+	} else {
+		ws_display_set_shade_lut(SHADE_LUT(0, 2, 4, 6, 8, 10, 12, 15));
+
+		// fill bg / fg
+		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+
+		// set palettes
+		for (uint8_t i = 0; i < 8; i++) {
+			outportw(0x20 + (ws_subpal_idx[i] << 1), (i << 4) | 0x07);
+		}
+		outportw(0x20 + (PAL_SIDEBAR0 << 1), 0x3006);
+		outportw(0x20 + (PAL_SIDEBAR1 << 1), 0x1446);
+		outportw(0x20 + (PAL_SIDEBAR2 << 1), 0x4336);
+		outportw(0x20 + (PAL_MESSAGE << 1), 0x07);
+
+		font_8x8_install((uint8_t*) 0x2000, false);
+
+		sidebar_sprite_table = (uint16_t*) 0x3800;
+		sidebar_tile_data = (uint8_t*) 0x3000;
+
+		// configure screen 1 (bg) / 2 (fg)
+		outportb(IO_SCR_BASE, SCR1_BASE(0x3000) | SCR2_BASE(0x3800));
+		outportb(IO_SPR_BASE, SPR_BASE(0x3800));
+
+		screen1_table = (uint16_t*) 0x3000;
+	}
+
+	text_set_opaque_bg(1);
+	sidebar_set_message_color(0x0F);
 
 	text_reinit(mode);
 }
@@ -240,35 +256,36 @@ void text_init(uint8_t mode) {
 void text_reinit(uint8_t mode) {
 	renderer_mode = mode;
 
+	if (!USE_COLOR_RENDERER && mode <= RENDER_MODE_TITLE) {
+		text_rebuild_sprite_table();
+	}
+
 	if (mode == RENDER_MODE_PLAYFIELD) {
 		text_set_sidebar_height(1);
 	} else {
 		text_set_sidebar_height(0);
 	}
 
-	uint16_t *table = sidebar_sprite_table + 56;
+	if (mode <= RENDER_MODE_TITLE) {
+		uint16_t *table = sidebar_sprite_table + 56;
 #ifdef HACK_HIDE_STATUSBAR
-	uint8_t y_offset = 136;
+		uint8_t y_offset = 136;
 #else
-	uint8_t y_offset = mode == RENDER_MODE_TITLE ? 136 : 128;
+		uint8_t y_offset = mode == RENDER_MODE_TITLE ? 136 : 128;
 #endif
-        for (uint8_t i = 0; i < 84; i++) {
-		table++;
-                *(table++) = ((i % 28) << 11) | (y_offset - ((i / 28) << 3));
-        }
+       		for (uint8_t i = 0; i < 84; i++) {
+			table++;
+                	*(table++) = ((i % 28) << 11) | (y_offset - ((i / 28) << 3));
+        	}
 
-	// enable display (in some modes)
-/*	if (mode <= RENDER_MODE_TITLE) */{
+		// enable display (in some modes)
+		if (!USE_COLOR_RENDERER) {
+			wait_vbl_done();
+		}
 		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
+	} else if (mode == RENDER_MODE_NONE) {
+		outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
 	}
-}
-
-void text_sync_hblank_safe(void) {
-	// TODO
-}
-
-void text_undraw(uint8_t x, uint8_t y) {
-
 }
 
 void text_draw(uint8_t x, uint8_t y, uint8_t chr, uint8_t col) {
@@ -279,18 +296,20 @@ void text_draw(uint8_t x, uint8_t y, uint8_t chr, uint8_t col) {
 		*((volatile uint16_t*) (0x6000 + offset)) = 219 | ws_subpal_tile[(col & 0x70) >> 4];
 		*((volatile uint16_t*) (0x6800 + offset)) = chr | ws_subpal_tile[col & 0x0F];
 	} else {
+		if (offset < (112 * 2)) return;
 		*((volatile uint16_t*) (0x3000 + offset)) = 219 | ws_subpal_tile_mono[(col & 0x70) >> 4];
 		*((volatile uint16_t*) (0x3800 + offset)) = chr | ws_subpal_tile_mono[col & 0x0F];
 	}
 }
 
-void text_free_line(uint8_t y) {
-
-}
-
+extern int8_t viewport_y;
 void text_scroll(int8_t dx, int8_t dy) {
 	draw_offset_x += dx;
-	draw_offset_y += dy;
+	if (USE_COLOR_RENDERER || (renderer_mode > RENDER_MODE_TITLE && renderer_mode != RENDER_MODE_NONE)) {
+		draw_offset_y += dy;
+	} else {
+		draw_offset_y = 6 + viewport_y;
+	}
 }
 
 void text_update(void) {
@@ -305,7 +324,7 @@ void sidebar_set_message_color(uint8_t color) {
 		MEM_COLOR_PALETTE(PAL_MESSAGE)[0] = 0x0000;
 		MEM_COLOR_PALETTE(PAL_MESSAGE)[1] = ws_palette[color & 0x0F];
 	} else {
-		outportw(0x20 + (PAL_MESSAGE << 1), (ws_subpal_idx_mono[color & 0x0F] << 4));
+		outportw(0x20 + (PAL_MESSAGE << 1), (ws_subpal_idx_mono[color & 0x0F] << 4) | 7);
 	}
 }
 

@@ -32,10 +32,10 @@ $(TARGET_MONO): $(TARGET)
 	cp $(TARGET) $(TARGET_MONO)
 
 $(TARGET): $(OBJECTS) $(BINFILE)
-	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_128KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
+	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_32KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -O2 -fno-jump-tables -fno-function-sections -c -o $@ $<
+	$(CC) $(CFLAGS) -D__WONDERFUL_WSWAN__ -O2 -fno-jump-tables -fno-function-sections -c -o $@ $<
 
 $(OBJDIR)/%.o: %.S | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<

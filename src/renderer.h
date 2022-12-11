@@ -20,10 +20,16 @@ extern uint8_t draw_offset_y;
 void text_init(uint8_t mode);
 void text_reinit(uint8_t mode);
 
+#if defined(__WONDERFUL_WSWAN__)
+static inline void text_sync_hblank_safe(void) {}
+static inline void text_undraw(uint8_t x, uint8_t y) {}
+static inline void text_free_line(uint8_t y) {}
+#else
 void text_sync_hblank_safe(void);
 void text_undraw(uint8_t x, uint8_t y);
-void text_draw(uint8_t x, uint8_t y, uint8_t chr, uint8_t col);
 void text_free_line(uint8_t y);
+#endif
+void text_draw(uint8_t x, uint8_t y, uint8_t chr, uint8_t col);
 void text_scroll(int8_t dx, int8_t dy);
 void text_update(void);
 

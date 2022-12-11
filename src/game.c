@@ -34,7 +34,9 @@ int8_t viewport_x = 1;
 int8_t viewport_y = 1;
 uint8_t viewport_focus_stat = 0;
 bool viewport_focus_locked = false;
+#ifndef HACK_HIDE_STATUSBAR
 bool viewport_full_board = true;
+#endif
 
 void center_viewport_on(int8_t x, int8_t y) {
 	int8_t vx = x - VIEWPORT_CENTER_X;
@@ -46,6 +48,7 @@ void center_viewport_on(int8_t x, int8_t y) {
 
 	viewport_x = vx;
 	viewport_y = vy;
+	text_scroll(0, 0);
 }
 
 void viewport_reset(void) {
@@ -74,10 +77,10 @@ void board_enter_stage1(void) {
 	zoo_game_state.game_state_element = E_PLAYER; // TODO: not here...
 
 	viewport_reset();
-	text_update();
 }
 
 void board_enter_stage2(void) {
+	text_update();
 	sidebar_hide_message();
 	game_update_sidebar_all();
 }

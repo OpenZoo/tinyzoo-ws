@@ -11,12 +11,12 @@ typedef struct __attribute__((packed)) {
 	int16_t position;
 } sram_ptr_t;
 
-#define SRAM_DATA_POS 4
+#define SRAM_DATA_POS 8
 #define SRAM_BOARD_PTRS_POS (SRAM_DATA_POS + 2 + sizeof(zoo_world_info_t))
 #define SRAM_TEXT_WINDOW_POS (SRAM_BOARD_PTRS_POS + (MAX_BOARD * sizeof(sram_ptr_t)))
 
 typedef struct {
-	uint8_t magic[4];
+	uint8_t magic[8];
 	uint8_t flags;
 	uint8_t world_id;
 	zoo_world_info_t world_info;

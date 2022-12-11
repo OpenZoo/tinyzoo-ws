@@ -40,7 +40,14 @@ static void txtwind_draw_line_txtwind(int16_t idx) {
 			offset = 4;
 		}
 	} else {
-		// TODO: mono renderer
+		pal_color = SCR_ENTRY_PALETTE(5);
+		if (line.type == TXTWIND_LINE_TYPE_CENTERED) {
+			pal_color = SCR_ENTRY_PALETTE(4);
+			offset = (TEXT_WIDTH_OUTER - line.len) >> 1;
+		} else if (line.type == TXTWIND_LINE_TYPE_HYPERLINK) {
+			pal_color = SCR_ENTRY_PALETTE(4);
+			offset = 4;
+		}
 	}
 
 	for (uint8_t i = 1; i <= TEXT_WIDTH_INNER; i++) {
@@ -53,7 +60,7 @@ static void txtwind_draw_line_txtwind(int16_t idx) {
 		if (USE_COLOR_RENDERER) {
 			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 0x2000 | 16, 2, idx & 31);
 		} else {
-			// TODO: mono renderer
+			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(7) | 16, 2, idx & 31);
 		}
 	}
 }
@@ -70,24 +77,28 @@ static uint8_t txtwind_run_txtwind(void) {
 	text_update();
 
 	outportb(IO_SCR1_SCRL_X, 4);
-
-	if (USE_COLOR_RENDERER) {
-		ws_screen_fill(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, 0, TEXT_WIDTH_OUTER, 32);
-	} else {
-		// TODO: mono renderer
-	}
+	ws_screen_fill(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, 0, TEXT_WIDTH_OUTER, 32);
 
 	for (i = 0; i < 18; i++) {
 		txtwind_draw_line_txtwind(pos + i);
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE);
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_BORDER(6));
 
+	uint8_t move = 0;
 	while (true) {
+		wait_vbl_done();
+		if (move == 1) {
+			wait_vbl_done();
+			wait_vbl_done();
+			wait_vbl_done();
+			wait_vbl_done();
+			wait_vbl_done();
+			wait_vbl_done();
+			wait_vbl_done();
+		}
 		input_reset();
-		wait_vbl_done();
-		wait_vbl_done();
 		wait_vbl_done();
 		wait_vbl_done();
 
@@ -96,16 +107,20 @@ static uint8_t txtwind_run_txtwind(void) {
 				pos--;
 				txtwind_draw_line_txtwind(pos);
 			}
+			if (move < 2) move++;
 		} else if (input_keys & KEY_DOWN) {
 			if (pos < (((int16_t) txtwind_lines) - 9)) {
 				txtwind_draw_line_txtwind(pos + 18);
 				pos++;
 			}
+			if (move < 2) move++;
 		} else if (input_keys & KEY_A) {
 			result = txtwind_exec_line(pos + 8) ? 0 : 255;
 			break;
 		} else if (input_keys & KEY_B) {
 			break;
+		} else {
+			move = 0;
 		}
 
 		draw_offset_y = pos & 31;
@@ -114,21 +129,13 @@ static uint8_t txtwind_run_txtwind(void) {
 		wait_vbl_done();
 
 		if (old_pos != -9 && old_pos != (txtwind_lines - 8)) {
-			if (USE_COLOR_RENDERER) {
-				ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, (old_pos + 8) & 31);
-				ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, (old_pos + 8) & 31);
-			} else {
-				// TODO: mono renderer
-			}
+			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, (old_pos + 8) & 31);
+			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, (old_pos + 8) & 31);
 		}
 		old_pos = pos;
 		if (pos != -9 && pos != (txtwind_lines - 8)) {
-			if (USE_COLOR_RENDERER) {
-				ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 175, 0, (draw_offset_y + 8) & 31);
-				ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 174, TEXT_WIDTH_OUTER - 1, (draw_offset_y + 8) & 31);
-			} else {
-				// TODO: mono renderer
-			}
+			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 175, 0, (draw_offset_y + 8) & 31);
+			ws_screen_put(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 174, TEXT_WIDTH_OUTER - 1, (draw_offset_y + 8) & 31);
 		}
 	}
 
@@ -162,7 +169,8 @@ static uint8_t txtwind_run_menu(void) {
 		pal_prefix = SCR_ENTRY_PALETTE(PAL_MENU);
 		pal_prefix_hlt = SCR_ENTRY_PALETTE(PAL_MENU) | 0x2000;
 	} else {
-		// TODO: mono renderer
+		pal_prefix = SCR_ENTRY_PALETTE(4);
+		pal_prefix_hlt = SCR_ENTRY_PALETTE(7);
 	}
 	ws_screen_fill(screen1_table, pal_prefix | 32, 0, 0, 28, 18);
 
@@ -189,7 +197,7 @@ static uint8_t txtwind_run_menu(void) {
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE);
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_BORDER(7));
 
 	while (true) {
 		input_reset();
@@ -231,7 +239,7 @@ uint8_t txtwind_run(uint8_t render_mode) {
 	uint8_t result;
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, 0);
+	text_reinit(RENDER_MODE_NONE);
 	text_reinit(render_mode);
 
 	if (render_mode == RENDER_MODE_TXTWIND) {
@@ -244,12 +252,14 @@ uint8_t txtwind_run(uint8_t render_mode) {
 	input_wait_clear();
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, 0);
+	text_reinit(RENDER_MODE_NONE);
 
 	draw_offset_x = old_draw_offset_x;
 	draw_offset_y = old_draw_offset_y;
 	board_redraw();
-	// game_update_sidebar_all();
+	if (!USE_COLOR_RENDERER) {
+		game_update_sidebar_all();
+	}
 	input_reset();
 	wait_vbl_done();
 	text_reinit(RENDER_MODE_PLAYFIELD);

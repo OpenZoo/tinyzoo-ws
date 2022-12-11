@@ -220,7 +220,7 @@ void sram_toggle_write(void) {
 }
 
 void sram_init(bool force) {
-	uint8_t magic[4];
+	uint8_t magic[8];
 	sram_ptr_t ptr;
 	sram_entry_t entry;
 
@@ -229,17 +229,19 @@ void sram_init(bool force) {
 
 	ZOO_ENABLE_RAM;
 
+	uint8_t prev_bank = _current_bank;
+	ZOO_SWITCH_ROM(0x00);
+
 #ifndef RESET_SAVE_ON_START
-	sram_read(&ptr, magic, 4);
-	if (magic[0] != sram_expected_magic[0]
-		|| magic[1] != sram_expected_magic[1]
-		|| magic[2] != sram_expected_magic[2]
-		|| magic[3] != sram_expected_magic[3]
+	sram_read(&ptr, magic, 8);
+	if (memcmp(magic, sram_expected_magic, 4)
+		|| memcmp(magic + 4, (uint8_t __far*) MK_FP(0x2000, 0), 4)
 		|| force)
 #endif
 	{
 		ptr.position = 0;
 		sram_write(&ptr, sram_expected_magic, 4);
+		sram_write(&ptr, (uint8_t __far*) MK_FP(0x2000, 0), 4);
 		// write empty flags
 		sram_write8(&ptr, 0);
 		// write empty world id
@@ -260,8 +262,6 @@ void sram_init(bool force) {
 			// tinyzoo-ws: only 32K!
 			sram_write(&ptr, (const uint8_t*) &entry, sizeof(sram_entry_t));
 			sram_add_ptr(&ptr, entry.size);
-			sram_write(&ptr, (const uint8_t*) &entry, sizeof(sram_entry_t));
-			sram_add_ptr(&ptr, entry.size);
 		} else {
 			while (ptr.bank < max_bank) {
 				sram_write(&ptr, (const uint8_t*) &entry, sizeof(sram_entry_t));
@@ -270,5 +270,6 @@ void sram_init(bool force) {
 		}
 	}
 
+	ZOO_SWITCH_ROM(prev_bank);
 	ZOO_DISABLE_RAM;
 }

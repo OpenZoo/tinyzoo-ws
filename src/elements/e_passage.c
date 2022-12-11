@@ -8,6 +8,10 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
+#ifdef __WONDERFUL_WSWAN__
+#include "../platform_ws/p_renderer.h"
+#endif
+
 static const zoo_tile_t __far empty_tile = {E_EMPTY, 0};
 
 void ElementPassageTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
@@ -41,7 +45,17 @@ void ElementPassageTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 
 	zoo_game_state.paused = true;
 #ifdef FEAT_BOARD_TRANSITIONS
+#ifdef __WONDERFUL_WSWAN__
+	if (!USE_COLOR_RENDERER) {
+		ZOO_BUSYLOOP(game_transition_running());
+	}
+#endif
 	board_enter_stage1();
+#ifdef __WONDERFUL_WSWAN__
+	if (!USE_COLOR_RENDERER) {
+		game_transition_fill(GAME_TRANSITION_FROM_BOARD);
+	}
+#endif
 	game_transition_board_change_end();
 	board_enter_stage2();
 	ZOO_BUSYLOOP(game_transition_running());

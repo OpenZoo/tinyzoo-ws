@@ -37,6 +37,9 @@ void game_menu_act_enter_world(uint8_t world_id, bool new_game, bool first_launc
 		input_wait_clear();
 
 		sound_clear_queue();
+
+		wait_vbl_done();
+		text_reinit(RENDER_MODE_NONE);
 	}
 #endif
 

@@ -129,6 +129,7 @@ void scroll_viewport_to(uint8_t vx, uint8_t vy, bool force_redraw) {
 	if (force_redraw || dist > MAX_SCROLL_DISTANCE_BEFORE_REDRAW) {
 		viewport_x = vx;
 		viewport_y = vy;
+		text_scroll(0, 0);
 		board_redraw();
 	} else {
 		renderer_scrolling = 1;
@@ -306,6 +307,7 @@ void move_stat_scroll_focused(uint8_t stat_id, uint8_t old_x, uint8_t old_y, uin
 		viewport_x = ovx;
 		vy = viewport_y;
 		viewport_y = ovy;
+		text_scroll(0, 0);
 	}
 
 	bool is_dark = (zoo_board_info.flags & BOARD_IS_DARK) && (zoo_world_info.torch_ticks > 0);

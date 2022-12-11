@@ -12,7 +12,7 @@ void load_world_rom(uint8_t offset) {
 	uint8_t prev_bank = _current_bank;
 	ZOO_SWITCH_ROM(ROM_DATA_START_BANK);
 
-	far_ptr_t __far* world_ptr_ptr = (far_ptr_t __far*) MK_FP(0x2000, offset * 3);
+	far_ptr_t __far* world_ptr_ptr = (far_ptr_t __far*) MK_FP(0x2000, 4 + offset * 3);
 	uint8_t *data = world_ptr_ptr->ptr;
 	board_pointers_bank = world_ptr_ptr->bank;
 	ZOO_SWITCH_ROM(board_pointers_bank);
