@@ -23,6 +23,7 @@ const uint8_t __far ws_subpal_idx[16] = {
 	4, 5, 6, 7, 12, 13, 14, 15
 };
 
+uint8_t renderer_mode;
 uint8_t *sidebar_tile_data;
 
 // palettes:
@@ -212,9 +213,10 @@ void text_init(uint8_t mode) {
 	sidebar_set_message_color(0x0F);
 
 	// populate sprite table
+	text_set_sidebar_height(0);
 	uint16_t *table = sidebar_sprite_table;
-	uint16_t i;
-	for (i = 0; i < 28; i++) {
+	uint16_t i = 0;
+	for (; i < 28; i++) {
 		*(table++) = SCR_ENTRY_PALETTE((uint16_t) ws_sidebar_palettes[i]) | (sidebar_tile_offset + i) | (1 << 13);
 		*(table++) = (i << 11) | 136;
 	}
@@ -223,18 +225,9 @@ void text_init(uint8_t mode) {
 		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
 		*(table++) = ((i % 28) << 11) | (136 - ((i / 28) << 3));
 	}
-	text_set_sidebar_height(0);
 
 	// enable display
 	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
-
-	// init audio
-	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
-	outportb(IO_SND_VOL_CH4, 0xFF);
-
-	for (uint8_t i = 0; i < 16; i++) {
-		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;
-	}
 
 	text_reinit(mode);
 }
@@ -245,6 +238,7 @@ void text_reinit(uint8_t mode) {
 	} else {
 		text_set_sidebar_height(0);
 	}
+	renderer_mode = mode;
 }
 
 void text_sync_hblank_safe(void) {
@@ -293,7 +287,7 @@ void sidebar_set_message_color(uint8_t color) {
 	}
 }
 
-static uint8_t sidebar_show_line(const char __far* line, uint8_t sb_offset) {
+static uint8_t sidebar_show_line(const uint8_t __far* line, uint8_t sb_offset) {
         if (line != NULL) {
                 uint8_t slen = *(line++);
                 if (slen > 0) {

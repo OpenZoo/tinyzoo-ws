@@ -12,3 +12,5 @@ echo "[ Compiling transition tables ]"
 python3 tools/gen_transition_table.py res/game_transition_table.inc 28 18
 echo "[ Compiling text messages ]"
 python3 tools/gen_static_txtwind_data.py res/license.txt res/txtwind_license.inc txtwind_license_data
+echo "[ Compiling sound tables ]"
+python3 tools/gen_freq_table.py >src/platform_ws/sound_freqs.inc

@@ -7,6 +7,7 @@
 extern uint16_t dhsecs;
 extern uint8_t vbl_ticks;
 
+extern void __attribute__((interrupt)) line_int_handler(void);
 extern void __attribute__((interrupt)) timer_int_handler(void);
 
 void __attribute__((interrupt)) vblank_int_handler(void) {
@@ -31,11 +32,21 @@ void vbl_timer_init(void) {
 }
 
 void timer_init(void) {
+	// init audio
+	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
+	outportb(IO_SND_VOL_CH4, 0x77);
+	outportb(IO_SND_VOL_CH2_VOICE, IO_SND_VOL_CH2_HALF);
+
+	for (uint8_t i = 0; i < 16; i++) {
+		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;
+	}
+
 	cpu_irq_disable();
 
 	dhsecs = 0;
 
         ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, timer_int_handler);
+        ws_hwint_set_handler(HWINT_IDX_LINE, line_int_handler);
 
         outportw(IO_HBLANK_TIMER, 660);
         outportb(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
