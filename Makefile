@@ -5,8 +5,8 @@ include $(WONDERFUL_TOOLCHAIN)/i8086/wswan.mk
 
 BINFILE := data.bin
 
-TARGET := $(notdir $(shell pwd)).wsc
-TARGET_MONO := $(notdir $(shell pwd)).ws
+TARGET := tinyzoo.wsc
+TARGET_ENGINE := tinyzoo_ws_engine.bin
 OBJDIR := obj
 SRCDIRS := res src src/elements src/platform_ws
 MKDIRS := $(OBJDIR)
@@ -26,10 +26,10 @@ vpath %.S $(SRCDIRS)
 
 .PHONY: all clean install
 
-all: $(TARGET) $(TARGET_MONO)
+all: $(TARGET) $(TARGET_ENGINE)
 
-$(TARGET_MONO): $(TARGET)
-	cp $(TARGET) $(TARGET_MONO)
+$(TARGET_ENGINE): $(OBJECTS)
+	$(SWANLINK) -v -o $@ --trim --heap-length 0x1FF0 --ram-type SRAM_32KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
 
 $(TARGET): $(OBJECTS) $(BINFILE)
 	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_32KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
