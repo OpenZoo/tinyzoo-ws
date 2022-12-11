@@ -30,7 +30,10 @@
 	.global line_int_handler
 	.global timer_int_handler
 
+	.align 2
 #include "./sound_freqs.inc"
+
+// #define USE_24000HZ_DRUMS
 
 line_int_handler:
 	push ax
@@ -40,7 +43,11 @@ line_int_handler:
 	mov bx, ss:[drum_position]
 	cmp bx, ss:[drum_position_end]
 	je line_int_handler_stop
+#ifdef USE_24000HZ_DRUMS
+	add bx, 2
+#else
 	inc bx
+#endif
 	mov al, cs:[bx]
 
 	// play current drum frequency
@@ -152,13 +159,27 @@ timer_int_handler_check_drum:
 	jge timer_int_handler_checks_done
 
 	mov ah, 0
+#ifdef USE_24000HZ_DRUMS
+	shl ax, 7
+#else
 	shl ax, 6
+#endif
 	add ax, ax
 	add ax, ax // ax *= 192
 	add ax, offset sound_drums
 	mov bx, ax
 	mov [drum_position], ax
+
+	// are we color?
+	in al, 0xA0
+	test al, 0x02
+	jnz timer_int_handler_drum_dma
+
+#ifdef USE_24000HZ_DRUMS
+	add ax, 384
+#else
 	add ax, 192
+#endif
 	mov [drum_position_end], ax
 	mov al, cs:[bx]
 	out 0x89, al
@@ -183,6 +204,37 @@ timer_int_handler_next_line_fits:
 
 	pop bx
 	jmp timer_int_handler_end
+
+timer_int_handler_drum_dma:
+	// configure sound DMA source
+	mov ax, cs
+	ror ax, 12
+	out 0x4C, ax
+	and ax, 0xFFF0
+	add ax, [drum_position]
+	out 0x4A, ax
+	xor ax, ax
+	out 0x50, ax
+#ifdef USE_24000HZ_DRUMS
+	mov ax, 384
+#else
+	mov al, 192
+#endif
+	out 0x4E, ax
+
+	// configure channel 2 voice
+	mov al, 0x80
+	out 0x89, al
+	mov al, 0x22
+	out 0x90, al
+
+	// start DMA
+#ifdef USE_24000HZ_DRUMS
+	mov al, 0x83
+#else
+	mov al, 0x82
+#endif
+	out 0x52, al
 
 timer_int_handler_checks_done:
 	pop bx
