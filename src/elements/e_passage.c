@@ -46,6 +46,8 @@ void ElementPassageTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 	board_enter_stage2();
 	ZOO_BUSYLOOP(game_transition_running());
 	board_enter_stage3();
+	// gbzoo: reset input
+	input_reset();
 #else
 	sound_queue(4, sound_passage_teleport);
 	board_enter_stage1();

@@ -35,7 +35,7 @@ $(TARGET): $(OBJECTS) $(BINFILE)
 	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_128KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -O2 -c -o $@ $<
+	$(CC) $(CFLAGS) -O2 -fno-jump-tables -fno-function-sections -c -o $@ $<
 
 $(OBJDIR)/%.o: %.S | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<

@@ -10,7 +10,7 @@ uint16_t input_held;
 int8_t input_delta_x, input_delta_y;
 
 void input_update_vbl(void) {
-	uint16_t keys = keypad_scan();
+	uint16_t keys = ws_keypad_scan();
 	input_keys |= keys;
 	input_keys_repressed |= (keys & input_keys_released);
 	input_keys_released |= (input_held & (~keys));

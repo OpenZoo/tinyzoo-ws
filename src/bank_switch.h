@@ -10,12 +10,12 @@ extern uint8_t _current_bank;
 #define ZOO_SWITCH_ROM(bank) \
 	{ \
 		_current_bank = (bank); \
-		set_rom_bank0(bank); \
+		ws_bank_rom0_set(bank); \
 	}
 
 #define ZOO_SWITCH_RAM(bank) \
 	{ \
-		set_sram_bank(bank); \
+		ws_bank_ram_set(bank); \
 	}
 
 #define ZOO_ENABLE_RAM \

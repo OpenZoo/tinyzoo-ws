@@ -7,7 +7,7 @@
 extern uint16_t dhsecs;
 extern uint8_t vbl_ticks;
 
-extern void timer_int_handler(void);
+extern void __attribute__((interrupt)) timer_int_handler(void);
 
 void __attribute__((interrupt)) vblank_int_handler(void) {
 	vbl_ticks++;
@@ -18,19 +18,16 @@ void __attribute__((interrupt)) vblank_int_handler(void) {
 	game_transition_step();
 #endif
 
-	system_ack_hw_int(INTR_MASK_VBLANK);
+	ws_hwint_ack(HWINT_VBLANK);
 }
 
 void vbl_timer_init(void) {
-	cpu_irq_disable();
+        cpu_irq_disable();
 
-        outportb(IO_INT_VECTOR, 0x08);
-        outportb(IO_INT_ENABLE, INTR_ENABLE_VBLANK);
+        ws_hwint_set_handler(HWINT_IDX_VBLANK, vblank_int_handler);
+        ws_hwint_enable(HWINT_VBLANK);
 
-        *((uint16_t*) 0x0038) = FP_OFF(vblank_int_handler);
-        *((uint16_t*) 0x003A) = FP_SEG(vblank_int_handler);
-
-	cpu_irq_enable();
+        cpu_irq_enable();
 }
 
 void timer_init(void) {
@@ -38,12 +35,12 @@ void timer_init(void) {
 
 	dhsecs = 0;
 
-        outportb(IO_INT_ENABLE, INTR_ENABLE_VBLANK | INTR_ENABLE_HBLANK_TIMER);
+        ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, timer_int_handler);
+
         outportw(IO_HBLANK_TIMER, 660);
         outportb(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
 
-        *((uint16_t*) 0x003C) = FP_OFF(timer_int_handler);
-        *((uint16_t*) 0x003E) = FP_SEG(timer_int_handler);
+        ws_hwint_enable(HWINT_HBLANK_TIMER);
 
 	cpu_irq_enable();
 }

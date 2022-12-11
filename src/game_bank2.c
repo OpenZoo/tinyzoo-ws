@@ -203,8 +203,6 @@ void game_scrolling_view(void) {
 	int8_t old_vx = viewport_x;
 	int8_t old_vy = viewport_y;
 
-	input_wait_clear();
-
 #ifndef HACK_HIDE_STATUSBAR
 	viewport_full_board = true;
 	if (viewport_y > VIEWPORT_MAX_Y) {
@@ -217,14 +215,13 @@ void game_scrolling_view(void) {
 	text_reinit(RENDER_MODE_TITLE);
 
 	while (true) {
-		wait_vbl_done();
-		wait_vbl_done();
+		int8_t vx = viewport_x;
+		int8_t vy = viewport_y;
+		if (input_held & KEY_AUP) vy--;
+		if (input_held & KEY_ADOWN) vy++;
+		if (input_held & KEY_ALEFT) vx--;
+		if (input_held & KEY_ARIGHT) vx++;
 
-		input_update();
-		if (input_keys & 0xF0) break;
-
-		int8_t vx = viewport_x + input_delta_x;
-		int8_t vy = viewport_y + input_delta_y;
 		if (vx < VIEWPORT_MIN_X) vx = VIEWPORT_MIN_X;
 		else if (vx > VIEWPORT_MAX_X) vx = VIEWPORT_MAX_X;
 		if (vy < VIEWPORT_MIN_Y) vy = VIEWPORT_MIN_Y;
@@ -234,13 +231,18 @@ void game_scrolling_view(void) {
 			scroll_viewport_to(vx, vy, false);
 			text_update();
 		}
+
+		wait_vbl_done();
+		wait_vbl_done();
+		wait_vbl_done();
+
+		input_update();
+		if (input_keys & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT | KEY_A | KEY_B | KEY_START)) break;
 	}
 
 #ifndef HACK_HIDE_STATUSBAR
 	viewport_full_board = false;
 #endif
-
-	input_wait_clear();
 
 	if (old_vx != viewport_x || old_vy != viewport_y) {
 		scroll_viewport_to(old_vx, old_vy, false);

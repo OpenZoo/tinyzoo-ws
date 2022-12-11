@@ -15,7 +15,7 @@
 #define COL_LVL_2 10
 #define COL_LVL_3 15
 
-#define USE_COLOR_RENDERER system_color_present()
+#define USE_COLOR_RENDERER ws_system_is_color()
 // #define USE_COLOR_RENDERER 0
 
 const uint8_t __far ws_subpal_idx[16] = {
@@ -154,7 +154,7 @@ void text_init(uint8_t mode) {
 	outportb(IO_SPR_FIRST, 0);
 
 	if (USE_COLOR_RENDERER) {
-		system_set_mode(MODE_COLOR);
+		ws_mode_set(WS_MODE_COLOR);
 
 		// set palettes
 		for (uint8_t i = 0; i < 8; i++) {
@@ -175,8 +175,8 @@ void text_init(uint8_t mode) {
 		MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = ws_palette[6];
 
 		// fill bg / fg
-		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		video_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		font_8x8_install(0x2000, false);
 		font_8x8_install(0x4000, true);
@@ -189,11 +189,11 @@ void text_init(uint8_t mode) {
 		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
 		outportb(IO_SPR_BASE, SPR_BASE(0x7000));
 	} else {
-		video_shade_lut_set(GRAY_LUT(0, 3, 5, 7, 9, 11, 13, 15));
+		ws_display_set_shade_lut(SHADE_LUT(0, 3, 5, 7, 9, 11, 13, 15));
 
 		// fill bg / fg
-		video_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		video_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill(0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill(0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		// set palettes
 		for (uint8_t i = 0; i < 8; i++) {
@@ -227,6 +227,14 @@ void text_init(uint8_t mode) {
 
 	// enable display
 	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
+
+	// init audio
+	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
+	outportb(IO_SND_VOL_CH4, 0xFF);
+
+	for (uint8_t i = 0; i < 16; i++) {
+		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;
+	}
 
 	text_reinit(mode);
 }

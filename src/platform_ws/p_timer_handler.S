@@ -38,8 +38,8 @@ timer_int_handler:
 	mov word ptr ss:[dhsecs], ax
 
 	// acknowledge interrupt
-        mov al, 0x80
-        out 0xB6, al
+	mov al, 0x80
+	out 0xB6, al
 
 	pop ax
 	iret
