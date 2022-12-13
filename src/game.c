@@ -224,6 +224,7 @@ void display_message(uint8_t time, const char __far* line1, const char __far* li
 	}
 }
 
+#ifndef __WONDERFUL_WSWAN__
 uint8_t get_stat_id_at(uint8_t x, uint8_t y) {
 	zoo_stat_t *stat = zoo_stats + 1;
 
@@ -234,6 +235,7 @@ uint8_t get_stat_id_at(uint8_t x, uint8_t y) {
 
 	return STAT_ID_NONE;
 }
+#endif
 
 void add_stat(uint8_t tx, uint8_t ty, uint8_t element, uint8_t color, uint8_t cycle, const zoo_stat_t __far* template) {
 	if (zoo_stat_count >= MAX_STAT) return;

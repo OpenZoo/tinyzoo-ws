@@ -209,12 +209,12 @@ void text_init(uint8_t mode) {
 		font_8x8_install((uint8_t*) 0x2000, false);
 		font_8x8_install((uint8_t*) 0x4000, true);
 
-		sidebar_sprite_table = (uint16_t*) 0x7000;
+		sidebar_sprite_table = (uint16_t*) 0x3200;
 		sidebar_tile_data = (uint8_t*) 0x3000;
 
 		// configure screen 1 (bg) / 2 (fg)
 		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
-		outportb(IO_SPR_BASE, SPR_BASE(0x7000));
+		outportb(IO_SPR_BASE, SPR_BASE(0x3200));
 
 		screen1_table = (uint16_t*) 0x6000;
 
