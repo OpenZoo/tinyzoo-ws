@@ -122,7 +122,7 @@ void board_undraw_tile(uint8_t x, uint8_t y) {
 	text_undraw(vx, vy);
 }
 
-__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
+// __attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120 (but seems stable)
 void board_draw_tile(uint8_t x, uint8_t y) {
 	// Viewport check
 	uint8_t vx = x - viewport_x;

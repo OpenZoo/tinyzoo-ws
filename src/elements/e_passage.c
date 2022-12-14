@@ -3,6 +3,7 @@
 #include "../gamevars.h"
 #include "../game.h"
 #include "../game_transition.h"
+#include "../input.h"
 #include "../math.h"
 #include "../renderer_sidebar.h"
 #include "../sound_consts.h"

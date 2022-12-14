@@ -26,6 +26,8 @@ extern const int8_t __far neighbor_delta_y[4];
 extern const int8_t __far diagonal_delta_x[8];
 extern const int8_t __far diagonal_delta_y[8];
 
+void wait_vbl_done(void);
+
 // game.c (bank 0)
 
 void center_viewport_on(int8_t x, int8_t y);

@@ -1,3 +1,4 @@
+#include "game.h"
 #include "input.h"
 
 uint8_t vbl_ticks;
