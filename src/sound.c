@@ -66,9 +66,11 @@ void sound_init(void) {
 	sound_is_playing = false;
 }
 
+extern void sound_reset(void);
+
 void sound_clear_queue(void) {
 	sound_buffer_len = 0;
 	sound_is_playing = false;
 
-	// TODO: reset sound hardware
+	sound_reset();
 }

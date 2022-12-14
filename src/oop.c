@@ -40,7 +40,8 @@ static uint16_t find_label_loc;
 #define SET_ZAP_NONE 255
 #define SET_ZAP_FALSE 0
 #define SET_ZAP_TRUE 1
-#define SET_ZAP_FALSE_IF_FIND_STRING_VISIBLE 2
+#define SET_ZAP_RESTORE 2
+#define SET_ZAP_RESTORE2 3
 
 static void oop_command_end(void) {
 	oop_pos = 0xFFFF;
@@ -107,9 +108,17 @@ bool oop_find_label_in_stat(uint8_t stat_id, uint8_t label_id, bool zapped, uint
 					(*data_zap_loc) &= ~zap_mask;
 				} else if (set_zap == SET_ZAP_TRUE) {
 					(*data_zap_loc) |= zap_mask;
-				} else if (set_zap == SET_ZAP_FALSE_IF_FIND_STRING_VISIBLE) {
-					if ((find_label_loc & 0x8000) == 0) goto FindLabelNotUsed;
+				} else if (set_zap == SET_ZAP_RESTORE) {
 					(*data_zap_loc) &= ~zap_mask;
+					set_zap = SET_ZAP_RESTORE2;
+					label_loc += 2;
+					continue;
+				} else if (set_zap == SET_ZAP_RESTORE2) {
+					if (find_label_loc & 0x8000) {
+						(*data_zap_loc) &= ~zap_mask;
+					}
+					label_loc += 2;
+					continue;
 				}
 
 				ZOO_SWITCH_ROM(prev_bank);
@@ -117,7 +126,6 @@ bool oop_find_label_in_stat(uint8_t stat_id, uint8_t label_id, bool zapped, uint
 			}
 		}
 
-FindLabelNotUsed:
 		// not jumping
 		label_loc += 2;
 	}
@@ -192,14 +200,7 @@ void oop_zap(uint8_t stat_id, uint8_t label_id, bool target_empty) {
 }
 
 void oop_restore(uint8_t stat_id, uint8_t label_id, bool target_empty) {
-	// TODO: Optimize inner loop?
-	if (oop_find_label_in_stat(stat_id, label_id, true, SET_ZAP_FALSE)) {
-		if (target_empty) {
-			while (oop_find_label_in_stat(stat_id, label_id, true, SET_ZAP_FALSE_IF_FIND_STRING_VISIBLE)) {
-				// pass
-			}
-		}
-	}
+	oop_find_label_in_stat(stat_id, label_id, true, target_empty ? SET_ZAP_RESTORE : SET_ZAP_FALSE);
 }
 
 void oop_zap_target(uint8_t target_id, uint8_t label_id, oop_zap_proc zap_proc) {
@@ -793,6 +794,25 @@ static const uint8_t __far oop_ins_cost[] = {
 bool oop_handle_txtwind(void);
 
 __attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
+static bool oop_execute_loop(void) {
+	while (oop_ins_count > 0 && !oop_stop_running) {
+		if (oop_running_skippable) {
+			oop_running_skippable = false;
+		} else {
+			oop_last_code_loc = oop_code_loc;
+		}
+		oop_cmd = *(oop_code_loc++);
+#ifdef DEBUG_PRINTFS_OOP_EXEC
+		if (oop_pos != 0xFFFF) {
+			oop_pos = oop_code_loc - (oop_prog_loc + 5);
+		}
+		EMU_printf("- pos %d, cmd 0x%x", oop_pos, oop_cmd);
+#endif
+		oop_ins_count -= oop_ins_cost[oop_cmd];
+		oop_procs[oop_cmd]();
+	}
+}
+
 bool oop_execute(uint8_t stat_id, const char __far* name) {
 	uint8_t prev_bank = _current_bank;
 
@@ -821,22 +841,7 @@ OopStartParsing:
 	oop_ins_count = MAX_OOP_INSTRUCTION_COUNT;
 	oop_window_zzt_lines = 0;
 
-	while (oop_ins_count > 0 && !oop_stop_running) {
-		if (oop_running_skippable) {
-			oop_running_skippable = false;
-		} else {
-			oop_last_code_loc = oop_code_loc;
-		}
-		oop_cmd = *(oop_code_loc++);
-#ifdef DEBUG_PRINTFS_OOP_EXEC
-		if (oop_pos != 0xFFFF) {
-			oop_pos = oop_code_loc - (oop_prog_loc + 5);
-		}
-		EMU_printf("- pos %d, cmd 0x%x", oop_pos, oop_cmd);
-#endif
-		oop_ins_count -= oop_ins_cost[oop_cmd];
-		oop_procs[oop_cmd]();
-	}
+	oop_execute_loop();
 
 	if (oop_pos != 0xFFFF) {
 		oop_pos = oop_code_loc - (oop_prog_loc + 5);

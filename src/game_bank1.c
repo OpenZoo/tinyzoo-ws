@@ -36,7 +36,7 @@ void board_attack(uint8_t stat_id, uint8_t x, uint8_t y) {
 	}
 }
 
-__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
+// __attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 static void game_play_handle_pause(bool pause_blink) {
 	uint8_t px = ZOO_STAT(0).x;
 	uint8_t py = ZOO_STAT(0).y;
@@ -87,7 +87,7 @@ static void game_play_handle_pause(bool pause_blink) {
 	}
 }
 
-__attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
+// __attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
 void game_play_loop(bool board_changed) {
 RestartGameLoop:
 	sound_block_queueing = false;

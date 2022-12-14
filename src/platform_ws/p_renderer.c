@@ -332,7 +332,6 @@ static uint8_t sidebar_show_line(const uint8_t __far* line, uint8_t sb_offset) {
         if (line != NULL) {
                 uint8_t slen = *(line++);
                 if (slen > 0) {
-			// TODO: mono support
 			volatile uint16_t *sptr = &sidebar_sprite_table[sb_offset << 1];
 			for (uint8_t i = 0; i < 28; i++, sptr += 2) {
 				*sptr = SCR_ENTRY_PALETTE(PAL_MESSAGE) | (1 << 13);

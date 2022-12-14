@@ -31,6 +31,10 @@ void vbl_timer_init(void) {
         cpu_irq_enable();
 }
 
+void sound_reset(void) {
+	outportb(IO_SND_CH_CTRL, 0x00);
+}
+
 void timer_init(void) {
 	// init audio
 	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
@@ -38,6 +42,7 @@ void timer_init(void) {
 	outportb(IO_SND_VOL_CH2_VOICE, IO_SND_VOL_CH2_HALF);
 	outportb(IO_SND_OUT_CTRL,
 		SND_OUT_VOLUME_100 | SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE);
+	outportb(IO_SND_CH_CTRL, 0x00);
 
 	for (uint8_t i = 0; i < 16; i++) {
 		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;

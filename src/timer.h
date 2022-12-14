@@ -14,5 +14,6 @@ void vbl_timer_init(void);
 void timer_init(void);
 uint16_t timer_hsecs(void);
 bool timer_has_time_elapsed(uint16_t *ctr, uint16_t duration);
+void sound_reset(void);
 
 #endif /* __TIMER_H__ */

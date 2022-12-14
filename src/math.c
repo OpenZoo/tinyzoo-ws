@@ -19,6 +19,8 @@ int8_t difference8(int8_t a, int8_t b) {
 
 // RNG
 
+#if 0
+
 uint32_t rand_seed;
 
 void zsrand(uint16_t seed) {
@@ -43,3 +45,5 @@ int16_t zrand_mod(int16_t max) {
 	rand_step();
 	return (rand_seed >> 16) % max;
 }
+
+#endif

@@ -81,7 +81,7 @@ timer_int_handler:
 	je timer_int_handler_no_sound
 
 	cmp byte ptr [sound_is_playing], 0
-	je timer_int_handler_no_sound
+	je timer_int_handler_end
 
 	dec byte ptr [sound_duration_counter]
 	jg timer_int_handler_end
