@@ -33,9 +33,9 @@ extern int8_t viewport_x;
 extern int8_t viewport_y;
 
 void board_create(bool full_create) {
-	memset(&zoo_board_info, 0, sizeof(zoo_board_info));
+	_nmemset(&zoo_board_info, 0, sizeof(zoo_board_info));
 	if (full_create) {
-		memset(zoo_tiles, 0, sizeof(zoo_tiles));
+		_nmemset(zoo_tiles, 0, sizeof(zoo_tiles));
 	}
 	
 	zoo_board_info.max_shots = 255;
@@ -71,11 +71,11 @@ void board_create(bool full_create) {
 
 void world_create(void) {
 	// TODO: boardcount, boardlen
-	memset(&msg_flags, 0, sizeof(msg_flags));
+	_nmemset(&msg_flags, 0, sizeof(msg_flags));
 	board_create(true);
-	memset(&zoo_world_info, 0, sizeof(zoo_world_info));
+	_nmemset(&zoo_world_info, 0, sizeof(zoo_world_info));
 	zoo_world_info.health = 100;
-	memset(&zoo_world_info.oop_flags, FLAG_ID_NONE, sizeof(zoo_world_info.oop_flags));
+	_nmemset(&zoo_world_info.oop_flags, FLAG_ID_NONE, sizeof(zoo_world_info.oop_flags));
 	// TODO: This will save to SRAM - we don't want this!
 	// board_change(0);
 }

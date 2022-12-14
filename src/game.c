@@ -307,7 +307,7 @@ void remove_stat(uint8_t stat_id) {
 		}
 	}
 
-	memmove(zoo_stats + stat_id + 1, zoo_stats + stat_id + 2, (zoo_stat_count - stat_id) * sizeof(zoo_stat_t));
+	_nmemmove(zoo_stats + stat_id + 1, zoo_stats + stat_id + 2, (zoo_stat_count - stat_id) * sizeof(zoo_stat_t));
 	zoo_stat_count--;
 }
 

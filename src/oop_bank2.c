@@ -117,7 +117,7 @@ uint16_t oop_dataofs_clone(uint16_t loc) {
 #ifdef DEBUG_PRINTFS
 	EMU_printf("cloning dataofs @ %u, len %u, size %u", loc, len, zoo_stat_data_size);
 #endif
-	memcpy(zoo_stat_data + zoo_stat_data_size, zoo_stat_data + loc, len);
+	_nmemmove(zoo_stat_data + zoo_stat_data_size, zoo_stat_data + loc, len);
 	uint16_t new_pos = zoo_stat_data_size;
 	zoo_stat_data_size += len;
 	return new_pos;
@@ -128,7 +128,7 @@ static void oop_dataofs_free(uint16_t loc) {
 #ifdef DEBUG_PRINTFS
 	EMU_printf("freeing dataofs @ %u, len %u, size %u", loc, len, zoo_stat_data_size);
 #endif
-	memmove(zoo_stat_data + loc, zoo_stat_data + loc + len, zoo_stat_data_size - loc - len);
+	_nmemmove(zoo_stat_data + loc, zoo_stat_data + loc + len, zoo_stat_data_size - loc - len);
 	zoo_stat_data_size -= len;
 
 	zoo_stat_t *stat = &ZOO_STAT(0);

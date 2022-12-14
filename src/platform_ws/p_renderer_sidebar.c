@@ -39,7 +39,7 @@ static void sidebar_draw_char(uint8_t x, uint8_t chr, uint8_t col) {
 void sidebar_draw_empty(uint8_t x, uint8_t width) {
 	if (!((x | width) & 1)) {
 	        uint8_t *tile_data = sidebar_tile_data + (x << 3);
-		memset(tile_data, 0, ((uint16_t) width) << 3);
+		_nmemset(tile_data, 0, ((uint16_t) width) << 3);
 	} else {
 		for (uint8_t i = 0; i < width; i++) {
 			sidebar_draw_char(x+width,0,0);
@@ -51,7 +51,7 @@ void sidebar_draw_panel(uint8_t x, uint8_t chr, uint8_t col, int16_t value, bool
 	uint8_t text[5];
 	uint8_t data_len = wide ? 64 : 48;
 
-	memset(TILE_DATA_AT_X(x), 0, data_len);
+	_nmemset(TILE_DATA_AT_X(x), 0, data_len);
 	sidebar_draw_char(x, chr, col);
 	uint8_t offset = x + 2;
 
@@ -95,7 +95,7 @@ DrawFullNumber:
 }
 
 void sidebar_draw_keys(uint8_t x, uint8_t value) {
-	memset(TILE_DATA_AT_X(x), 0, 64);
+	_nmemset(TILE_DATA_AT_X(x), 0, 64);
 
 	if (value & 0x02) sidebar_draw_char(x + 1, 0x0C, 1);
 	if (value & 0x04) sidebar_draw_char(x + 2, 0x0C, 2);

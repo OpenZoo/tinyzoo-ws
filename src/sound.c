@@ -37,7 +37,7 @@ void sound_queue(int8_t priority, const uint8_t __far* data) {
 				}
 			} else {
 				uint8_t pos = sound_buffer_pos;
-				memmove(sound_buffer, sound_buffer + pos, sound_buffer_len - pos);
+				_nmemmove(sound_buffer, sound_buffer + pos, sound_buffer_len - pos);
 				text_sync_hblank_safe();
 				{
 					cpu_irq_disable();
