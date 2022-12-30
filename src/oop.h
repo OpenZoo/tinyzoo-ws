@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "p_banking.h"
 #include "config.h"
 #include "gamevars.h"
 
@@ -37,8 +38,8 @@ uint16_t oop_dataofs_clone(uint16_t loc);
 void oop_dataofs_free_if_unused(uint16_t loc, uint8_t except_id);
 
 // oop.c (bank 0)
-extern const char __far oop_object_name[];
-extern const char __far oop_scroll_name[];
+extern const char WS_FAR oop_object_name[];
+extern const char WS_FAR oop_scroll_name[];
 bool oop_send(uint8_t stat_id, bool respect_self_lock, uint8_t label_id, bool ignore_lock);
 bool oop_send_target(uint8_t target_id, bool respect_self_lock, uint8_t label_id, bool ignore_lock);
 bool oop_execute(uint8_t stat_id, const char __far* name);

@@ -6,7 +6,7 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
-static const uint8_t __far line_tiles[16] = {
+static const uint8_t WS_FAR line_tiles[16] = {
 	249, 208, 210, 186,
 	181, 188, 187, 185,
 	198, 200, 201, 204,

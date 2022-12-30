@@ -1,4 +1,4 @@
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "elements.h"
 #include "elements_utils.h"
 #include "game.h"
@@ -10,8 +10,8 @@
 #include "timer.h"
 #include "txtwind.h"
 
-const char __far oop_object_name[] = "Interaction";
-const char __far oop_scroll_name[] = "Scroll";
+const char WS_FAR oop_object_name[] = "Interaction";
+const char WS_FAR oop_scroll_name[] = "Scroll";
 
 static uint16_t oop_pos;
 static zoo_stat_t *oop_stat;
@@ -481,7 +481,7 @@ static void oop_command_send(void) {
 	oop_code_loc = oop_prog_loc + 5 + oop_pos;
 }
 
-static int16_t* const __far oop_give_ptrs[] = {
+static int16_t* const WS_FAR oop_give_ptrs[] = {
 	&zoo_world_info.health,
 	&zoo_world_info.ammo,
 	&zoo_world_info.gems,
@@ -490,7 +490,7 @@ static int16_t* const __far oop_give_ptrs[] = {
 	&zoo_world_info.board_time_sec
 };
 
-static const oop_command_proc __far oop_give_procs[] = {
+static const oop_command_proc WS_FAR oop_give_procs[] = {
 	game_update_sidebar_health,
 	game_update_sidebar_ammo,
 	game_update_sidebar_gems_time,
@@ -722,7 +722,7 @@ static void oop_command_text_line(void) {
 	}
 }
 
-static const oop_command_proc __far oop_procs[] = {
+static const oop_command_proc WS_FAR oop_procs[] = {
 	oop_command_end,
 	oop_command_direction, // /
 	oop_command_direction, // ?
@@ -757,7 +757,7 @@ static const oop_command_proc __far oop_procs[] = {
 	oop_command_viewport,
 };
 
-static const uint8_t __far oop_ins_cost[] = {
+static const uint8_t WS_FAR oop_ins_cost[] = {
 	1, // #END
 	0, // /
 	0, // ?

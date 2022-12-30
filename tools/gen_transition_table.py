@@ -29,7 +29,7 @@ with open(sys.argv[1], "w") as fp:
 
 	print("// Auto-generated file. Please do not edit directly.\n", file = fp)
 	print("#define TRANSITION_TABLE_%d_%d_ENTRY_COUNT %d" % (width, height, entry_count), file = fp)
-	print("const uint8_t __far transition_table_%d_%d[] = {" % (width, height), file = fp)
+	print("const uint8_t WS_FAR transition_table_%d_%d[] = {" % (width, height), file = fp)
 
 	entries = []
 	for i in range(0, entry_count):

@@ -1,6 +1,6 @@
 #include <ws.h>
 
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "config.h"
 #include "game.h"
 #include "gamevars.h"

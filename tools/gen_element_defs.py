@@ -64,7 +64,7 @@ def path_for_name(table_name):
 def start_table(table_type, table_name, fp):
 	print("// Auto-generated file. Please do not edit directly.", file = fp);
 	print("", file = fp);
-	print("const %s __far zoo_element_defs_%s[MAX_ELEMENT + 1] = {" % (table_type, table_name), file = fp);
+	print("const %s WS_FAR zoo_element_defs_%s[MAX_ELEMENT + 1] = {" % (table_type, table_name), file = fp);
 
 def start_element(i, fp):
 	if len(ElementDefs[i].Name) > 0:

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <ws.h>
+#define WS_FAR __far
 
 void zoo_switch_init(void);
 void zoo_switch_rom(uint8_t bank);

@@ -7,7 +7,7 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
-static const uint8_t __far duplicator_tiles[6] = {250, 250, 249, 248, 111, 79};
+static const uint8_t WS_FAR duplicator_tiles[6] = {250, 250, 249, 248, 111, 79};
 
 uint8_t ElementDuplicatorDraw(uint8_t x, uint8_t y) {
 	uint8_t p1 = ZOO_STAT_AT(x, y).p1;

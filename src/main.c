@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "../res/font_default.h"
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "game.h"
 #include "math.h"
 #include "renderer.h"

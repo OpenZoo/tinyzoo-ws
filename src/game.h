@@ -2,6 +2,7 @@
 #define __GAME_H__
 
 #include <stdint.h>
+#include "p_banking.h"
 #include "gamevars.h"
 
 extern int8_t viewport_x;
@@ -20,11 +21,11 @@ extern bool viewport_full_board;
 #define VIEWPORT_MIN_Y 1
 #define VIEWPORT_MAX_Y (BOARD_HEIGHT - VIEWPORT_HEIGHT + (viewport_full_board ? 1 : 2))
 
-extern const zoo_stat_t __far stat_template_default;
-extern const int8_t __far neighbor_delta_x[4];
-extern const int8_t __far neighbor_delta_y[4];
-extern const int8_t __far diagonal_delta_x[8];
-extern const int8_t __far diagonal_delta_y[8];
+extern const zoo_stat_t WS_FAR stat_template_default;
+extern const int8_t WS_FAR neighbor_delta_x[4];
+extern const int8_t WS_FAR neighbor_delta_y[4];
+extern const int8_t WS_FAR diagonal_delta_x[8];
+extern const int8_t WS_FAR diagonal_delta_y[8];
 
 void wait_vbl_done(void);
 

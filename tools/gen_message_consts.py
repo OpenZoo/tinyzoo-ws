@@ -29,15 +29,18 @@ with (
 
 	print("// Auto-generated file. Please do not edit directly.\n", file = fp_c)
 	print("#include <stdint.h>\n", file = fp_c)
+	print("#include \"p_banking.h\"\n", file = fp_c)
 	print("// Auto-generated file. Please do not edit directly.\n", file = fp_h)
 	print(f"#ifndef {hdr_define}\n#define {hdr_define}\n", file = fp_h)
+	print("#include <stdint.h>\n", file = fp_h)
+	print("#include \"p_banking.h\"\n", file = fp_h)
 
 	for i in fp_i:
 		i: str = i.strip()
 		if "=" in i:
 			kv = i.split("=", maxsplit=1)
-			print("extern const char __far %s[];" % kv[0], file = fp_h)
-			print("const char __far %s[] = {" % kv[0], file = fp_c)
+			print("extern const char WS_FAR %s[];" % kv[0], file = fp_h)
+			print("const char WS_FAR %s[] = {" % kv[0], file = fp_c)
 			vb = kv[1].encode("CP437")
 			if format == "length_prefixed_string":
 				s = "\t%d," % len(vb)

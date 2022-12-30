@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "p_banking.h"
 #include "config.h"
 #include "game.h"
 #include "gamevars.h"
@@ -10,7 +11,7 @@
 
 #ifdef SHOW_CHEATS
 
-static const uint16_t __far cheat_update_table[] = {
+static const uint16_t WS_FAR cheat_update_table[] = {
 	KEY_UP, 0, KEY_UP,
 	0, KEY_DOWN, 0, KEY_DOWN,
 	0, KEY_LEFT, 0, KEY_RIGHT,

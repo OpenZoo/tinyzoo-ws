@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ws.h>
 
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "game.h"
 #include "gamevars.h"
 #include "p_renderer.h"

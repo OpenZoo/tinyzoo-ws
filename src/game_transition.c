@@ -24,7 +24,7 @@ void game_transition_start(uint8_t color) {
 void game_transition_step(void) {
         if (transition_pos >= (TRANSITION_TABLE_28_18_ENTRY_COUNT * 2)) return;
 
-        const uint8_t __far* arr = transition_table_28_18 + transition_pos;
+        const uint8_t WS_FAR* arr = transition_table_28_18 + transition_pos;
 	if (transition_color == 0xFF) {
                 for (uint8_t i = 0; i < 9; i++) {
                         uint8_t x = *(arr++);

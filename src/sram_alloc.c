@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "config.h"
 #include "gamevars.h"
 #include "sram_alloc.h"
@@ -258,11 +258,14 @@ void sram_init(bool force) {
 		entry.size += sizeof(sram_header_t);
 
 		uint8_t max_bank = zoo_get_ram_bank_count();
+#ifdef __WONDERFUL_WSWAN__
 		if (max_bank == 1) {
 			// tinyzoo-ws: only 32K!
 			sram_write(&ptr, (const uint8_t*) &entry, sizeof(sram_entry_t));
 			sram_add_ptr(&ptr, entry.size);
-		} else {
+		} else
+#endif
+		{
 			while (ptr.bank < max_bank) {
 				sram_write(&ptr, (const uint8_t*) &entry, sizeof(sram_entry_t));
 				sram_add_ptr(&ptr, entry.size);

@@ -6,8 +6,8 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
-static const uint8_t __far transporter_ns_tiles[8] = {'^', '~', '^', '-', 'v', '_', 'v', '-'};
-static const uint8_t __far transporter_ew_tiles[8] = {'(', '<', '(', 179, ')', '>', ')', 179};
+static const uint8_t WS_FAR transporter_ns_tiles[8] = {'^', '~', '^', '-', 'v', '_', 'v', '-'};
+static const uint8_t WS_FAR transporter_ew_tiles[8] = {'(', '<', '(', 179, ')', '>', ')', 179};
 
 uint8_t ElementTransporterDraw(uint8_t x, uint8_t y) {
 	zoo_stat_t *stat = &ZOO_STAT_AT(x, y);

@@ -50,7 +50,8 @@ with (
 
 	print("// Auto-generated file. Please do not edit directly.\n", file = fp_o)
 	print("#include <stdint.h>\n", file = fp_o)
-	print("const uint8_t __far %s[] = {" % sys.argv[3], file = fp_o)
+	print("#include \"p_banking.h\"\n", file = fp_o)
+	print("const uint8_t WS_FAR %s[] = {" % sys.argv[3], file = fp_o)
 
 	for i in line_data:
 		print("\t%d," % i, file = fp_o)

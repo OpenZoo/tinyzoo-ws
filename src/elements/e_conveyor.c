@@ -81,7 +81,7 @@ static void ElementConveyorTick(uint8_t x, uint8_t y, int8_t dir) {
 	}
 }
 
-static const uint8_t __far conveyor_cw_tiles[4] = {179, 47, 196, 92};
+static const uint8_t WS_FAR conveyor_cw_tiles[4] = {179, 47, 196, 92};
 
 uint8_t ElementConveyorCWDraw(uint8_t x, uint8_t y) {
 	return conveyor_cw_tiles[((zoo_game_state.current_tick / 3) & 3)];

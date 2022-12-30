@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "gamevars.h"
 #include "math.h"
 #include "renderer_sidebar.h"

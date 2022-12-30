@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "p_banking.h"
 #include "board_manager.h"
 #include "gamevars.h"
 #include "game.h"
@@ -13,15 +14,15 @@
 #include "sound_consts.h"
 #include "timer.h"
 
-static const zoo_tile_t __far TileNormal = {E_NORMAL, 0x0E};
-static const zoo_stat_t __far StatCreateMinusOne = {
+static const zoo_tile_t WS_FAR TileNormal = {E_NORMAL, 0x0E};
+static const zoo_stat_t WS_FAR StatCreateMinusOne = {
 	0, 1,
 	0, 0, 0,
 	0, 1, 0,
 	1, 1,
 	{1, 0}
 };
-static const zoo_stat_t __far StatCreatePlayer = {
+static const zoo_stat_t WS_FAR StatCreatePlayer = {
 	BOARD_WIDTH >> 1, BOARD_HEIGHT >> 1,
 	0, 0, 1,
 	0, 0, 0,

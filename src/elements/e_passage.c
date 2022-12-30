@@ -13,7 +13,7 @@
 #include "../platform_ws/p_renderer.h"
 #endif
 
-static const zoo_tile_t __far empty_tile = {E_EMPTY, 0};
+static const zoo_tile_t WS_FAR empty_tile = {E_EMPTY, 0};
 
 void ElementPassageTouch(uint8_t x, uint8_t y, int8_t *dx, int8_t *dy) {
 	uint8_t col = ZOO_TILE(x, y).color;

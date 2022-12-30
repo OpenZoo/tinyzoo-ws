@@ -1,7 +1,7 @@
 #include <string.h>
 #include "gamevars.h"
 #include "game.h"
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "board_manager.h"
 #include "config.h"
 

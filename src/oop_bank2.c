@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "elements.h"
 #include "elements_utils.h"
 #include "game.h"

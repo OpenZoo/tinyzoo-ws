@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "bank_switch.h"
+#include "p_banking.h"
 #include "board_manager.h"
 #include "gamevars.h"
 #include "game.h"
@@ -16,7 +16,7 @@
 #include "sound_consts.h"
 #include "timer.h"
 
-const zoo_stat_t __far stat_template_default = {
+const zoo_stat_t WS_FAR stat_template_default = {
 	0, 0,
 	0, 0, 0,
 	0, 0, 0,
@@ -25,10 +25,10 @@ const zoo_stat_t __far stat_template_default = {
 	0xFFFF, 0
 };
 
-const int8_t __far neighbor_delta_x[4] = {0, 0, -1, 1};
-const int8_t __far neighbor_delta_y[4] = {-1, 1, 0, 0};
-const int8_t __far diagonal_delta_x[8] = {-1, 0, 1, 1, 1, 0, -1, -1};
-const int8_t __far diagonal_delta_y[8] = {1, 1, 1, 0, -1, -1, -1, 0};
+const int8_t WS_FAR neighbor_delta_x[4] = {0, 0, -1, 1};
+const int8_t WS_FAR neighbor_delta_y[4] = {-1, 1, 0, 0};
+const int8_t WS_FAR diagonal_delta_x[8] = {-1, 0, 1, 1, 1, 0, -1, -1};
+const int8_t WS_FAR diagonal_delta_y[8] = {1, 1, 1, 0, -1, -1, -1, 0};
 
 int8_t viewport_x = 1;
 int8_t viewport_y = 1;
