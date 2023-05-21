@@ -142,7 +142,7 @@ extern uint8_t cheat_active;
 #define ZOO_TILE_COPY(v, w) *((uint16_t*) &(v)) = *((uint16_t*) &(w))
 #define ZOO_TILE_ASSIGN(v, x, y) *((uint16_t*) &(v)) = *((uint16_t*) &ZOO_TILE((uint8_t)(x), (uint8_t)(y)))
 #define ZOO_TILE_CHANGE2(x, y, el, col) ((uint16_t*) zoo_tiles_y[(uint8_t)(y)])[(uint8_t)(x)] = ((uint16_t) ((el) | ((col) << 8))) */
-#define ZOO_TILE(x, y) zoo_tiles[((uint16_t) y) * 62 + x]
+#define ZOO_TILE(x, y) zoo_tiles[((uint16_t) (y)) * 62 + (x)]
 #define ZOO_TILE_COPY(v, w) v = w
 #define ZOO_TILE_ASSIGN(v, x, y) v = ZOO_TILE((uint8_t)(x), (uint8_t)(y))
 #define ZOO_TILE_CHANGE2(x, y, el, col) ((uint16_t*) zoo_tiles_y[(uint8_t)(y)])[(uint8_t)(x)] = ((uint16_t) ((el) | ((col) << 8)))

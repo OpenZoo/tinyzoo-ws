@@ -1,50 +1,129 @@
-ifndef WONDERFUL_TOOLCHAIN
-$(error Please define WONDERFUL_TOOLCHAIN to point to the location of the Wonderful toolchain.)
+# SPDX-License-Identifier: CC0-1.0
+#
+# SPDX-FileContributor: Adrian "asie" Siekierka, 2023
+
+WONDERFUL_TOOLCHAIN ?= /opt/wonderful
+TARGET = wswan/medium
+include $(WONDERFUL_TOOLCHAIN)/target/$(TARGET)/makedefs.mk
+
+# Metadata
+# --------
+
+NAME		:= tinyzoo_ws_engine
+
+# Source code paths
+# -----------------
+
+INCLUDEDIRS	:= src src/platform_ws
+SOURCEDIRS	:= res src src/elements src/platform_ws
+CBINDIRS	:=
+
+# Defines passed to all files
+# ---------------------------
+
+DEFINES		:=
+
+# Libraries
+# ---------
+
+LIBS		:= -lwsx -lws
+LIBDIRS		:= $(WF_TARGET_DIR)
+
+# Build artifacts
+# ---------------
+
+BUILDDIR	:= build
+ELF		:= build/$(NAME).elf
+MAP		:= build/$(NAME).map
+ROM		:= $(NAME).bin
+
+# Verbose flag
+# ------------
+
+ifeq ($(V),1)
+_V		:=
+else
+_V		:= @
 endif
-include $(WONDERFUL_TOOLCHAIN)/i8086/wswan.mk
 
-BINFILE := data.bin
+# Source files
+# ------------
 
-TARGET := tinyzoo.wsc
-TARGET_ENGINE := tinyzoo_ws_engine.bin
-OBJDIR := obj
-SRCDIRS := res src src/elements src/platform_ws
-MKDIRS := $(OBJDIR)
-LIBS := -lws -lc -lgcc
+ifneq ($(CBINDIRS),)
+    SOURCES_CBIN	:= $(shell find -L $(CBINDIRS) -name "*.bin")
+    INCLUDEDIRS		+= $(addprefix $(BUILDDIR)/,$(CBINDIRS))
+endif
+SOURCES_S	:= $(shell find -L $(SOURCEDIRS) -maxdepth 1 -name "*.s")
+SOURCES_C	:= $(shell find -L $(SOURCEDIRS) -maxdepth 1 -name "*.c")
 
-CSOURCES := $(foreach dir,$(SRCDIRS),$(notdir $(wildcard $(dir)/*.c)))
-ASMSOURCES := $(foreach dir,$(SRCDIRS),$(notdir $(wildcard $(dir)/*.S)))
-OBJECTS := $(CSOURCES:%.c=$(OBJDIR)/%.o) $(ASMSOURCES:%.S=$(OBJDIR)/%.o)
+# Compiler and linker flags
+# -------------------------
 
-DEPS := $(OBJECTS:.o=.d)
-CFLAGS += -MMD -MP
+WARNFLAGS	:= -Wall
 
-CFLAGS += -Ires -Isrc -Isrc/elements -Isrc/platform_ws
+INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
+		   $(foreach path,$(LIBDIRS),-I$(path)/include)
 
-vpath %.c $(SRCDIRS)
-vpath %.S $(SRCDIRS)
+LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
-.PHONY: all clean install
+ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
+		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections
 
-all: $(TARGET) $(TARGET_ENGINE)
+CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
+		   $(INCLUDEFLAGS) -O2 -fno-jump-tables -fno-function-sections
 
-$(TARGET_ENGINE): $(OBJECTS)
-	$(SWANLINK) -v -o $@ --trim --heap-length 0x1FF0 --ram-type SRAM_32KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
+LDFLAGS		:= $(LIBDIRSFLAGS) -Wl,-Map,$(MAP) -Wl,--gc-sections \
+		   $(WF_ARCH_LDFLAGS) $(LIBS)
 
-$(TARGET): $(OBJECTS) $(BINFILE)
-	$(SWANLINK) -v -o $@ -a $(BINFILE) --heap-length 0x1FF0 --ram-type SRAM_32KB --color --output-elf $@.elf --linker-args $(LDFLAGS) $(WF_CRT0) $(OBJECTS) $(LIBS)
+# Intermediate build files
+# ------------------------
 
-$(OBJDIR)/%.o: %.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -D__WONDERFUL_WSWAN__ -O2 -fno-jump-tables -fno-function-sections -c -o $@ $<
+OBJS_ASSETS	:= $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_CBIN)))
 
-$(OBJDIR)/%.o: %.S | $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+HEADERS_ASSETS	:= $(patsubst %.bin,%_bin.h,$(addprefix $(BUILDDIR)/,$(SOURCES_CBIN)))
 
-$(OBJDIR):
-	$(info $(shell mkdir -p $(MKDIRS)))
+OBJS_SOURCES	:= $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_S))) \
+		   $(addsuffix .o,$(addprefix $(BUILDDIR)/,$(SOURCES_C)))
+
+OBJS		:= $(OBJS_ASSETS) $(OBJS_SOURCES)
+
+DEPS		:= $(OBJS:.o=.d)
+
+# Targets
+# -------
+
+.PHONY: all clean
+
+all: $(ROM)
+
+$(ROM) $(ELF): $(OBJS)
+	@echo "  ROMLINK $@"
+	$(_V)$(ROMLINK) -v -o $@ --output-elf $(ELF) --trim -- $(OBJS) $(WF_CRT0) $(LDFLAGS)
 
 clean:
-	rm -r $(OBJDIR)/*
-	rm $(TARGET) $(TARGET).elf
+	@echo "  CLEAN"
+	$(_V)$(RM) $(ROM) $(BUILDDIR)
+
+# Rules
+# -----
+
+$(BUILDDIR)/%.s.o : %.s
+	@echo "  AS      $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(CC) $(ASFLAGS) -MMD -MP -c -o $@ $<
+
+$(BUILDDIR)/%.c.o : %.c
+	@echo "  CC      $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $@ $<
+
+$(BUILDDIR)/%.bin.o $(BUILDDIR)/%_bin.h : %.bin
+	@echo "  BIN2C   $<"
+	@$(MKDIR) -p $(@D)
+	$(_V)$(WF)/bin/wf-bin2c -a 2 --address-space __far $(@D) $<
+	$(_V)$(CC) $(CFLAGS) -MMD -MP -c -o $(BUILDDIR)/$*.bin.o $(BUILDDIR)/$*_bin.c
+
+# Include dependency files if they exist
+# --------------------------------------
 
 -include $(DEPS)

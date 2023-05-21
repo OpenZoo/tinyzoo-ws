@@ -794,7 +794,7 @@ static const uint8_t WS_FAR oop_ins_cost[] = {
 bool oop_handle_txtwind(void);
 
 __attribute__((optimize("-O0"))) // https://github.com/tkchia/gcc-ia16/issues/120
-static bool oop_execute_loop(void) {
+static void oop_execute_loop(void) {
 	while (oop_ins_count > 0 && !oop_stop_running) {
 		if (oop_running_skippable) {
 			oop_running_skippable = false;

@@ -13,7 +13,7 @@
 #include "elements_funcdefs.h"
 
 uint8_t ElementDefaultDraw(uint8_t x, uint8_t y) {
-	// TODO
+	return '?';
 }
 
 void ElementDefaultTick(uint8_t stat_id) {

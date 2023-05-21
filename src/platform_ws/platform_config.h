@@ -1,6 +1,7 @@
 #ifndef __PLATFORM_CONFIG_H__
 #define __PLATFORM_CONFIG_H__
 
+#include <wonderful.h>
 #include <ws.h>
 
 // TODO: Optimize

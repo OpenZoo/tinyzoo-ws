@@ -1,4 +1,4 @@
-#include <wonderful-asm.h>
+#include <wonderful.h>
 
 	.arch	i186
 	.code16
