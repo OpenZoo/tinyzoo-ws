@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ws.h>
+#include <wsx/planar_unpack.h>
 
 #include "p_banking.h"
 #include "game.h"
@@ -93,23 +94,6 @@ uint8_t draw_offset_x = 0;
 uint8_t draw_offset_y = 7;
 uint8_t renderer_scrolling;
 
-void font_8x8_install(volatile uint8_t *vptr, bool col2) {
-	const uint8_t __far *fptr = _font_default_bin;
-	if (col2) {
-		for (uint16_t i = 0; i < 2048; i++, fptr++) {
-			uint8_t vf = *fptr;
-			*(vptr++) = 0x00;
-			*(vptr++) = vf;
-		}
-	} else {
-		for (uint16_t i = 0; i < 2048; i++, fptr++) {
-			uint8_t vf = *fptr;
-			*(vptr++) = vf;
-			*(vptr++) = 0x00;
-		}
-	}
-}
-
 void text_set_opaque_bg(uint8_t color) {
 	for (uint8_t i = 0; i < 8; i++) {
 		MEM_COLOR_PALETTE(ws_subpal_idx[i])[0] = ws_palette[color];
@@ -198,6 +182,8 @@ void text_init(uint8_t mode) {
 	outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
 	outportb(IO_SPR_FIRST, 0);
 
+	wsx_planar_unpack((uint8_t*) 0x2000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_MODE_1BPP_2BPP_ZERO(0));
+
 	if (USE_COLOR_RENDERER) {
 		ws_mode_set(WS_MODE_COLOR);
 		text_rebuild_color_palette(ws_palette);
@@ -206,8 +192,7 @@ void text_init(uint8_t mode) {
 		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
 		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
-		font_8x8_install((uint8_t*) 0x2000, false);
-		font_8x8_install((uint8_t*) 0x4000, true);
+		wsx_planar_unpack((uint8_t*) 0x4000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_MODE_1BPP_2BPP_ZERO(1));
 
 		sidebar_sprite_table = (uint16_t*) 0x3200;
 		sidebar_tile_data = (uint8_t*) 0x3000;
@@ -234,8 +219,6 @@ void text_init(uint8_t mode) {
 		outportw(0x20 + (PAL_SIDEBAR1 << 1), 0x1446);
 		outportw(0x20 + (PAL_SIDEBAR2 << 1), 0x4336);
 		outportw(0x20 + (PAL_MESSAGE << 1), 0x07);
-
-		font_8x8_install((uint8_t*) 0x2000, false);
 
 		sidebar_sprite_table = (uint16_t*) 0x3800;
 		sidebar_tile_data = (uint8_t*) 0x3000;
