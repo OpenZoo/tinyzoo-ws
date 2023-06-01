@@ -11,7 +11,7 @@
 
 get_stat_id_at:
 	mov ah, dl
-	mov cl, [offset zoo_stat_count]
+	mov cl, byte ptr [zoo_stat_count]
 	inc cl
 	xor ch, ch
 	mov dl, cl
