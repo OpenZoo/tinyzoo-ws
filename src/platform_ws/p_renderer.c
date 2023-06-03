@@ -182,7 +182,7 @@ void text_init(uint8_t mode) {
 	outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
 	outportb(IO_SPR_FIRST, 0);
 
-	wsx_planar_unpack((uint8_t*) 0x2000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_MODE_1BPP_2BPP_ZERO(0));
+	wsx_planar_unpack((uint8_t*) 0x2000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_1BPP_TO_2BPP_ZERO(1));
 
 	if (USE_COLOR_RENDERER) {
 		ws_mode_set(WS_MODE_COLOR);
@@ -192,7 +192,7 @@ void text_init(uint8_t mode) {
 		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
 		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
-		wsx_planar_unpack((uint8_t*) 0x4000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_MODE_1BPP_2BPP_ZERO(1));
+		wsx_planar_unpack((uint8_t*) 0x4000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_1BPP_TO_2BPP_ZERO(2));
 
 		sidebar_sprite_table = (uint16_t*) 0x3200;
 		sidebar_tile_data = (uint8_t*) 0x3000;
