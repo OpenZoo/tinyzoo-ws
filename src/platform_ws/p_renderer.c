@@ -189,8 +189,8 @@ void text_init(uint8_t mode) {
 		text_rebuild_color_palette(ws_palette);
 
 		// fill bg / fg
-		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill_tiles((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill_tiles((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		wsx_planar_unpack((uint8_t*) 0x4000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_1BPP_TO_2BPP_ZERO(2));
 
@@ -208,8 +208,8 @@ void text_init(uint8_t mode) {
 		ws_display_set_shade_lut(SHADE_LUT(0, 2, 4, 6, 8, 10, 12, 15));
 
 		// fill bg / fg
-		ws_screen_fill((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
-		ws_screen_fill((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill_tiles((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
+		ws_screen_fill_tiles((uint16_t*) 0x6800, 0 | ws_subpal_tile[0], 0, 0, 32, 32);
 
 		// set palettes
 		for (uint8_t i = 0; i < 8; i++) {

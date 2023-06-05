@@ -70,7 +70,7 @@ ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
 		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections
 
 CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
-		   $(INCLUDEFLAGS) -O2 -fno-jump-tables -fno-function-sections
+		   $(INCLUDEFLAGS) -O2 -fno-function-sections
 
 LDFLAGS		:= $(LIBDIRSFLAGS) -Wl,-Map,$(MAP) -Wl,--gc-sections \
 		   $(WF_ARCH_LDFLAGS) $(LIBS)
