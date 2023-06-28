@@ -157,8 +157,8 @@ extern uint8_t cheat_active;
 #define ZOO_TILE_CHANGE2(x, y, el, col) ZOO_TILE(x, y).all = ((uint16_t) ((el) | ((col) << 8)))
 #endif
 
-#define ZOO_STAT(id) zoo_stats[(uint8_t) ((id) + 1)]
-#define ZOO_STAT_AT(x, y) zoo_stats[(uint8_t) (get_stat_id_at((x), (y)) + 1)]
+#define ZOO_STAT(id) zoo_stats[((id) + 1)]
+#define ZOO_STAT_AT(x, y) zoo_stats[(get_stat_id_at((x), (y)) + 1)]
 
 #define ZOO_BUSYLOOP(cond) while ((cond)) { \
 	cpu_halt(); \
