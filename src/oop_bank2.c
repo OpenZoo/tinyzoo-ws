@@ -31,7 +31,11 @@ bool find_tile_on_board(uint8_t *x, uint8_t *y, uint8_t element, uint8_t color) 
 
 	uint8_t temp7 = *x;
 	uint8_t temp8 = *y;
+#ifdef USE_ZOO_TILES_Y
 	tile_ptr = zoo_tiles_y[temp8];
+#else
+	tile_ptr = &zoo_tiles[(BOARD_WIDTH + 2) * temp8];
+#endif
 
 	if (color == 0) {
 		while (true) {
@@ -40,7 +44,11 @@ bool find_tile_on_board(uint8_t *x, uint8_t *y, uint8_t element, uint8_t color) 
 				if ((++temp8) > BOARD_HEIGHT) {
 					return false;
 				}
+#ifdef USE_ZOO_TILES_Y
 				tile_ptr = zoo_tiles_y[temp8];
+#else
+				tile_ptr = &zoo_tiles[(BOARD_WIDTH + 2) * temp8];
+#endif
 			}
 
 			*((uint16_t*) &tile) = ((uint16_t*) tile_ptr)[temp7];
@@ -57,7 +65,11 @@ bool find_tile_on_board(uint8_t *x, uint8_t *y, uint8_t element, uint8_t color) 
 				if ((++temp8) > BOARD_HEIGHT) {
 					return false;
 				}
+#ifdef USE_ZOO_TILES_Y
 				tile_ptr = zoo_tiles_y[temp8];
+#else
+				tile_ptr = &zoo_tiles[(BOARD_WIDTH + 2) * temp8];
+#endif
 			}
 
 			*((uint16_t*) &tile) = ((uint16_t*) tile_ptr)[temp7];

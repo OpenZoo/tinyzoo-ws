@@ -655,9 +655,9 @@ static void oop_command_viewport(void) {
 	} return;
 	case 0x02: {
 		uint8_t target = *(oop_code_loc++);
-		if (target == 251) {
+		if (target == OOP_TARGET_EMPTY) {
 			viewport_focus_stat = 0;
-		} else if (target == OOP_TARGET_SELF || target == OOP_TARGET_EMPTY) {
+		} else if (target == OOP_TARGET_SELF) {
 			viewport_focus_stat = oop_stat_id;
 		} else {
 			uint8_t prev_bank = _current_bank;

@@ -33,8 +33,15 @@ typedef struct __attribute__((packed)) {
 #define COLOR_CHOICE_ON_CHOICE 0xFD
 
 typedef struct __attribute__((packed)) {
-	uint8_t element;
-	uint8_t color;
+	union {
+		struct __attribute__((packed)) {
+			uint8_t element;
+			uint8_t color;
+		};
+		struct __attribute__((packed)) {
+			uint16_t all;
+		};
+	};
 } zoo_tile_t;
 
 // 16 bytes per stat
@@ -138,18 +145,20 @@ extern uint8_t cheat_active;
 
 #define ZOO_IN_TITLE() (zoo_game_state.game_state_element == E_MONITOR)
 
-/* #define ZOO_TILE(x, y) zoo_tiles_y[(uint8_t)(y)][(uint8_t)(x)]
+#ifdef USE_ZOO_TILES_Y
+#define ZOO_TILE(x, y) zoo_tiles_y[(uint8_t)(y)][(uint8_t)(x)]
 #define ZOO_TILE_COPY(v, w) *((uint16_t*) &(v)) = *((uint16_t*) &(w))
 #define ZOO_TILE_ASSIGN(v, x, y) *((uint16_t*) &(v)) = *((uint16_t*) &ZOO_TILE((uint8_t)(x), (uint8_t)(y)))
 #define ZOO_TILE_CHANGE2(x, y, el, col) ((uint16_t*) zoo_tiles_y[(uint8_t)(y)])[(uint8_t)(x)] = ((uint16_t) ((el) | ((col) << 8))) */
-#define ZOO_TILE(x, y) zoo_tiles[((uint16_t) (y)) * 62 + (x)]
+#else
+#define ZOO_TILE(x, y) zoo_tiles[((uint16_t) (y)) * (BOARD_WIDTH + 2) + (x)]
 #define ZOO_TILE_COPY(v, w) v = w
 #define ZOO_TILE_ASSIGN(v, x, y) v = ZOO_TILE((uint8_t)(x), (uint8_t)(y))
-#define ZOO_TILE_CHANGE2(x, y, el, col) ((uint16_t*) zoo_tiles_y[(uint8_t)(y)])[(uint8_t)(x)] = ((uint16_t) ((el) | ((col) << 8)))
-
+#define ZOO_TILE_CHANGE2(x, y, el, col) ZOO_TILE(x, y).all = ((uint16_t) ((el) | ((col) << 8)))
+#endif
 
 #define ZOO_STAT(id) zoo_stats[(uint8_t) ((id) + 1)]
-#define ZOO_STAT_AT(x, y) zoo_stats[get_stat_id_at((x), (y)) + 1]
+#define ZOO_STAT_AT(x, y) zoo_stats[(uint8_t) (get_stat_id_at((x), (y)) + 1)]
 
 #define ZOO_BUSYLOOP(cond) while ((cond)) { \
 	cpu_halt(); \

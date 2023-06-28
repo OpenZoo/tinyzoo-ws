@@ -12,6 +12,7 @@ uint8_t zoo_stat_data[MAX_DATA_OFS_SIZE];
 uint16_t zoo_stat_data_size;
 
 zoo_tile_t zoo_tiles[62 * 27];
+#ifdef USE_ZOO_TILES_Y
 zoo_tile_t* const WS_FAR zoo_tiles_y[27] = {
 	zoo_tiles,
 	zoo_tiles + (62 * 1),
@@ -41,6 +42,7 @@ zoo_tile_t* const WS_FAR zoo_tiles_y[27] = {
 	zoo_tiles + (62 * 25),
 	zoo_tiles + (62 * 26)
 };
+#endif
 
 #ifdef SHOW_CHEATS
 uint8_t cheat_active = 0;
