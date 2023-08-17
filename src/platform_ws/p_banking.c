@@ -18,7 +18,7 @@ uint8_t _current_bank;
 uint8_t bank_mask;
 
 void zoo_switch_init(void) {
-	uint8_t linear_offset = (inportb(IO_BANK_LINEAR) << 4) | 0xF;
+	uint8_t linear_offset = (inportb(IO_BANK_ROM_LINEAR) << 4) | 0xF;
 	uint8_t rom_mask = bank_masks[* ((uint8_t __far*) MK_FP(0xFFFF, 0x000A))];
 	bank_mask = rom_mask & linear_offset;
 }

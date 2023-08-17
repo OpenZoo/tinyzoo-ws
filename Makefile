@@ -34,7 +34,7 @@ LIBDIRS		:= $(WF_TARGET_DIR)
 
 BUILDDIR	:= build
 ELF		:= build/$(NAME).elf
-MAP		:= build/$(NAME).map
+ELF_STAGE1	:= build/$(NAME)_stage1.elf
 ROM		:= $(NAME).bin
 
 # Verbose flag
@@ -67,13 +67,15 @@ INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
 ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
-		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections
+		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common
 
 CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
-		   $(INCLUDEFLAGS) -O2 -fno-function-sections
+		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common -O2 -g
 
-LDFLAGS		:= $(LIBDIRSFLAGS) -Wl,-Map,$(MAP) -Wl,--gc-sections \
+LDFLAGS		:= -T$(WF_LDSCRIPT) $(LIBDIRSFLAGS) \
 		   $(WF_ARCH_LDFLAGS) $(LIBS)
+
+BUILDROMFLAGS	:= --trim
 
 # Intermediate build files
 # ------------------------
@@ -96,9 +98,13 @@ DEPS		:= $(OBJS:.o=.d)
 
 all: $(ROM)
 
-$(ROM) $(ELF): $(OBJS)
-	@echo "  ROMLINK $@"
-	$(_V)$(ROMLINK) -v -o $@ --output-elf $(ELF) --trim -- $(OBJS) $(WF_CRT0) $(LDFLAGS)
+$(ROM) $(ELF): $(ELF_STAGE1)
+	@echo "  ROM     $@"
+	$(_V)$(BUILDROM) -o $(ROM) --output-elf $(ELF) $(BUILDROMFLAGS) $<
+
+$(ELF_STAGE1): $(OBJS)
+	@echo "  LD      $@"
+	$(_V)$(CC) -r -o $(ELF_STAGE1) $(OBJS) $(WF_CRT0) $(LDFLAGS)
 
 clean:
 	@echo "  CLEAN"
