@@ -67,15 +67,15 @@ INCLUDEFLAGS	:= $(foreach path,$(INCLUDEDIRS),-I$(path)) \
 LIBDIRSFLAGS	:= $(foreach path,$(LIBDIRS),-L$(path)/lib)
 
 ASFLAGS		+= -x assembler-with-cpp $(DEFINES) $(WF_ARCH_CFLAGS) \
-		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common
+		   $(INCLUDEFLAGS) -fno-function-sections -fdata-sections -fno-common
 
 CFLAGS		+= -std=gnu11 $(WARNFLAGS) $(DEFINES) $(WF_ARCH_CFLAGS) \
-		   $(INCLUDEFLAGS) -ffunction-sections -fdata-sections -fno-common -O2 -g
+		   $(INCLUDEFLAGS) -fno-function-sections -fdata-sections -fno-common -O2 -g
 
 LDFLAGS		:= -T$(WF_LDSCRIPT) $(LIBDIRSFLAGS) \
 		   $(WF_ARCH_LDFLAGS) $(LIBS)
 
-BUILDROMFLAGS	:= --trim
+BUILDROMFLAGS	:= --trim -v
 
 # Intermediate build files
 # ------------------------
@@ -100,7 +100,7 @@ all: $(ROM)
 
 $(ROM) $(ELF): $(ELF_STAGE1)
 	@echo "  ROM     $@"
-	$(_V)$(BUILDROM) -o $(ROM) --output-elf $(ELF) $(BUILDROMFLAGS) $<
+	$(_V)$(BUILDROM) -o $(ROM) $(BUILDROMFLAGS) $<
 
 $(ELF_STAGE1): $(OBJS)
 	@echo "  LD      $@"

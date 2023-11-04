@@ -1,6 +1,9 @@
 #include <ws.h>
 #include "p_banking.h"
 
+#define IRAM_IMPLEMENTATION
+#include "iram.h"
+
 static const uint8_t __far bank_counts[] = {0, 0, 1, 2, 4, 8};
 static const uint8_t __far bank_masks[] = {
 	0xFE, // 0x00 = 2 banks

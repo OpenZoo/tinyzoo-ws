@@ -84,7 +84,7 @@ static uint8_t txtwind_run_txtwind(void) {
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_BORDER(6));
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | (6 << 8));
 
 	uint8_t move = 0;
 	while (true) {
@@ -197,7 +197,7 @@ static uint8_t txtwind_run_menu(void) {
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_BORDER(7));
+	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | (7 << 8));
 
 	while (true) {
 		input_reset();

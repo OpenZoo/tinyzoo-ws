@@ -179,7 +179,7 @@ void text_init(uint8_t mode) {
 		draw_offset_y = 7;
 	}
 
-	outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
+	outportw(IO_DISPLAY_CTRL, 7 << 8);
 	outportb(IO_SPR_FIRST, 0);
 
 	wsx_planar_unpack((uint8_t*) 0x2000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_1BPP_TO_2BPP_ZERO(1));
@@ -267,7 +267,7 @@ void text_reinit(uint8_t mode) {
 		}
 		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
 	} else if (mode == RENDER_MODE_NONE) {
-		outportw(IO_DISPLAY_CTRL, DISPLAY_BORDER(7));
+		outportw(IO_DISPLAY_CTRL, 7 << 8);
 	}
 }
 
