@@ -39,7 +39,7 @@ void timer_init(void) {
 	// init audio
 	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
 	outportb(IO_SND_VOL_CH4, 0x77);
-	outportb(IO_SND_VOL_CH2_VOICE, IO_SND_VOL_CH2_HALF);
+	outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_HALF);
 	outportb(IO_SND_OUT_CTRL,
 		SND_OUT_VOLUME_100 | SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE);
 	outportb(IO_SND_CH_CTRL, 0x00);
