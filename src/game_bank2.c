@@ -219,10 +219,10 @@ void game_scrolling_view(void) {
 	while (true) {
 		int8_t vx = viewport_x;
 		int8_t vy = viewport_y;
-		if (input_held & KEY_AUP) vy--;
-		if (input_held & KEY_ADOWN) vy++;
-		if (input_held & KEY_ALEFT) vx--;
-		if (input_held & KEY_ARIGHT) vx++;
+		if (input_held & WS_KEY_AUP) vy--;
+		if (input_held & WS_KEY_ADOWN) vy++;
+		if (input_held & WS_KEY_ALEFT) vx--;
+		if (input_held & WS_KEY_ARIGHT) vx++;
 
 		if (vx < VIEWPORT_MIN_X) vx = VIEWPORT_MIN_X;
 		else if (vx > VIEWPORT_MAX_X) vx = VIEWPORT_MAX_X;
@@ -239,7 +239,7 @@ void game_scrolling_view(void) {
 		wait_vbl_done();
 
 		input_update();
-		if (input_keys & (KEY_UP | KEY_DOWN | KEY_LEFT | KEY_RIGHT | KEY_A | KEY_B | KEY_START)) break;
+		if (input_keys & (WS_KEY_UP | WS_KEY_DOWN | WS_KEY_LEFT | WS_KEY_RIGHT | WS_KEY_A | WS_KEY_B | WS_KEY_START)) break;
 	}
 
 #ifndef HACK_HIDE_STATUSBAR

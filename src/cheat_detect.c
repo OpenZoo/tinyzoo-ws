@@ -12,11 +12,11 @@
 #ifdef SHOW_CHEATS
 
 static const uint16_t WS_FAR cheat_update_table[] = {
-	KEY_UP, 0, KEY_UP,
-	0, KEY_DOWN, 0, KEY_DOWN,
-	0, KEY_LEFT, 0, KEY_RIGHT,
-	0, KEY_LEFT, 0, KEY_RIGHT,
-	0, KEY_B, 0, KEY_A
+	WS_KEY_UP, 0, WS_KEY_UP,
+	0, WS_KEY_DOWN, 0, WS_KEY_DOWN,
+	0, WS_KEY_LEFT, 0, WS_KEY_RIGHT,
+	0, WS_KEY_LEFT, 0, WS_KEY_RIGHT,
+	0, WS_KEY_B, 0, WS_KEY_A
 };
 #define CHEAT_UPDATE_TABLE_LEN 19
 

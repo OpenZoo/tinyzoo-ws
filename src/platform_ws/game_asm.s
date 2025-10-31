@@ -22,9 +22,9 @@ get_stat_id_at_loop:
 	add bx, 16
 	loop get_stat_id_at_loop
 	mov ax, 0xFFFF
-	ASM_PLATFORM_RET
+	IA16_RET
 get_stat_id_at_found:
 	mov ah, 0xFF
 	mov al, dl
 	sub al, cl
-	ASM_PLATFORM_RET
+	IA16_RET

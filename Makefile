@@ -100,7 +100,7 @@ all: $(ROM)
 
 $(ROM) $(ELF): $(ELF_STAGE1)
 	@echo "  ROM     $@"
-	$(_V)$(BUILDROM) -o $(ROM) $(BUILDROMFLAGS) $<
+	$(_V)$(BUILDROM) -o $(ROM) --output-elf $(ELF) $(BUILDROMFLAGS) $<
 
 $(ELF_STAGE1): $(OBJS)
 	@echo "  LD      $@"

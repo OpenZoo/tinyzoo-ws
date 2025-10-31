@@ -16,11 +16,11 @@ zsrand:
 	mov [rand_seed_lo], ax
 	xor ax, ax
 	mov [rand_seed_hi], ax
-	ASM_PLATFORM_RET
+	IA16_RET
 _zsrand2:
 	mov word ptr [rand_seed_lo], 1
 	mov [rand_seed_hi], ax
-	ASM_PLATFORM_RET
+	IA16_RET
 
 zrand_step:
 	mov ax, 0x8c0d
@@ -43,14 +43,14 @@ zrand_step:
 zrand:
 	call zrand_step
 	mov ax, dx
-	ASM_PLATFORM_RET
+	IA16_RET
 
 zrand_mask8:
 	push ax
 	call zrand_step
 	pop ax
 	and al, dl
-	ASM_PLATFORM_RET
+	IA16_RET
 
 zrand_mod:
 	push ax
@@ -60,7 +60,7 @@ zrand_mod:
 	xor dx, dx
 	idiv cx // 0:dx / cx = remainder in dx
 	mov ax, dx
-	ASM_PLATFORM_RET
+	IA16_RET
 
 	.section .bss
 rand_seed_lo:

@@ -22,30 +22,30 @@ static void txtwind_draw_line_txtwind(int16_t idx) {
 	uint8_t offset = 1;
 
 	if ((idx == -1) || (idx == txtwind_lines)) {
-		ws_screen_fill_tiles(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 196, 0, idx & 31, TEXT_WIDTH_OUTER, 1);
+		ws_screen_fill_tiles(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 196, 0, idx & 31, TEXT_WIDTH_OUTER, 1);
 		return;
 	} else {
-		ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, idx & 31);
-		ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, idx & 31);
+		ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 32, 0, idx & 31);
+		ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, idx & 31);
 	}
 
 	uint16_t pal_color;
 	if (USE_COLOR_RENDERER) {
-		pal_color = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 0x2000;
+		pal_color = WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 0x2000;
 		if (line.type == TXTWIND_LINE_TYPE_CENTERED) {
-			pal_color = SCR_ENTRY_PALETTE(PAL_SIDEBAR0);
+			pal_color = WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0);
 			offset = (TEXT_WIDTH_OUTER - line.len) >> 1;
 		} else if (line.type == TXTWIND_LINE_TYPE_HYPERLINK) {
-			pal_color = SCR_ENTRY_PALETTE(PAL_SIDEBAR0);
+			pal_color = WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0);
 			offset = 4;
 		}
 	} else {
-		pal_color = SCR_ENTRY_PALETTE(5);
+		pal_color = WS_SCREEN_ATTR_PALETTE(5);
 		if (line.type == TXTWIND_LINE_TYPE_CENTERED) {
-			pal_color = SCR_ENTRY_PALETTE(4);
+			pal_color = WS_SCREEN_ATTR_PALETTE(4);
 			offset = (TEXT_WIDTH_OUTER - line.len) >> 1;
 		} else if (line.type == TXTWIND_LINE_TYPE_HYPERLINK) {
-			pal_color = SCR_ENTRY_PALETTE(4);
+			pal_color = WS_SCREEN_ATTR_PALETTE(4);
 			offset = 4;
 		}
 	}
@@ -58,9 +58,9 @@ static void txtwind_draw_line_txtwind(int16_t idx) {
 
 	if (line.type == TXTWIND_LINE_TYPE_HYPERLINK) {
 		if (USE_COLOR_RENDERER) {
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 0x2000 | 16, 2, idx & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR2) | 0x2000 | 16, 2, idx & 31);
 		} else {
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(7) | 16, 2, idx & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(7) | 16, 2, idx & 31);
 		}
 	}
 }
@@ -76,15 +76,15 @@ static uint8_t txtwind_run_txtwind(void) {
 	draw_offset_y = pos & 31;
 	text_update();
 
-	outportb(IO_SCR1_SCRL_X, 4);
-	ws_screen_fill_tiles(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, 0, TEXT_WIDTH_OUTER, 32);
+	outportb(WS_SCR1_SCRL_X_PORT, 4);
+	ws_screen_fill_tiles(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 32, 0, 0, TEXT_WIDTH_OUTER, 32);
 
 	for (i = 0; i < 18; i++) {
 		txtwind_draw_line_txtwind(pos + i);
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | (6 << 8));
+	outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | (6 << 8));
 
 	uint8_t move = 0;
 	while (true) {
@@ -102,22 +102,22 @@ static uint8_t txtwind_run_txtwind(void) {
 		wait_vbl_done();
 		wait_vbl_done();
 
-		if (input_keys & KEY_UP) {
+		if (input_keys & WS_KEY_UP) {
 			if (pos > -8) {
 				pos--;
 				txtwind_draw_line_txtwind(pos);
 			}
 			if (move < 2) move++;
-		} else if (input_keys & KEY_DOWN) {
+		} else if (input_keys & WS_KEY_DOWN) {
 			if (pos < (((int16_t) txtwind_lines) - 9)) {
 				txtwind_draw_line_txtwind(pos + 18);
 				pos++;
 			}
 			if (move < 2) move++;
-		} else if (input_keys & KEY_A) {
+		} else if (input_keys & WS_KEY_A) {
 			result = txtwind_exec_line(pos + 8) ? 0 : 255;
 			break;
-		} else if (input_keys & KEY_B) {
+		} else if (input_keys & WS_KEY_B) {
 			break;
 		} else {
 			move = 0;
@@ -125,17 +125,17 @@ static uint8_t txtwind_run_txtwind(void) {
 
 		draw_offset_y = pos & 31;
 		text_update();
-		outportb(IO_SCR1_SCRL_X, 4);
+		outportb(WS_SCR1_SCRL_X_PORT, 4);
 		wait_vbl_done();
 
 		if (old_pos != -9 && old_pos != (txtwind_lines - 8)) {
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, 0, (old_pos + 8) & 31);
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, (old_pos + 8) & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 32, 0, (old_pos + 8) & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | 32, TEXT_WIDTH_OUTER - 1, (old_pos + 8) & 31);
 		}
 		old_pos = pos;
 		if (pos != -9 && pos != (txtwind_lines - 8)) {
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 175, 0, (draw_offset_y + 8) & 31);
-			ws_screen_put_tile(screen1_table, SCR_ENTRY_PALETTE(PAL_SIDEBAR2) | 174, TEXT_WIDTH_OUTER - 1, (draw_offset_y + 8) & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR2) | 175, 0, (draw_offset_y + 8) & 31);
+			ws_screen_put_tile(screen1_table, WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR2) | 174, TEXT_WIDTH_OUTER - 1, (draw_offset_y + 8) & 31);
 		}
 	}
 
@@ -166,11 +166,11 @@ static uint8_t txtwind_run_menu(void) {
 	// clear + colors
 	uint16_t pal_prefix, pal_prefix_hlt;
 	if (USE_COLOR_RENDERER) {
-		pal_prefix = SCR_ENTRY_PALETTE(PAL_MENU);
-		pal_prefix_hlt = SCR_ENTRY_PALETTE(PAL_MENU) | 0x2000;
+		pal_prefix = WS_SCREEN_ATTR_PALETTE(PAL_MENU);
+		pal_prefix_hlt = WS_SCREEN_ATTR_PALETTE(PAL_MENU) | 0x2000;
 	} else {
-		pal_prefix = SCR_ENTRY_PALETTE(4);
-		pal_prefix_hlt = SCR_ENTRY_PALETTE(7);
+		pal_prefix = WS_SCREEN_ATTR_PALETTE(4);
+		pal_prefix_hlt = WS_SCREEN_ATTR_PALETTE(7);
 	}
 	ws_screen_fill_tiles(screen1_table, pal_prefix | 32, 0, 0, 28, 18);
 
@@ -197,7 +197,7 @@ static uint8_t txtwind_run_menu(void) {
 	}
 
 	wait_vbl_done();
-	outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | (7 << 8));
+	outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | (7 << 8));
 
 	while (true) {
 		input_reset();
@@ -205,22 +205,22 @@ static uint8_t txtwind_run_menu(void) {
 		wait_vbl_done();
 		wait_vbl_done();
 
-		if (input_keys & KEY_UP) {
+		if (input_keys & WS_KEY_UP) {
 			if (arrow_y > 0) {
 				ws_screen_put_tile(screen1_table, pal_prefix_hlt | 32, wnd_x + 2, wnd_y + 2 + arrow_y);
 				arrow_y--;
 				ws_screen_put_tile(screen1_table, pal_prefix_hlt | 16, wnd_x + 2, wnd_y + 2 + arrow_y);
 			}
-		} else if (input_keys & KEY_DOWN) {
+		} else if (input_keys & WS_KEY_DOWN) {
 			if (arrow_y < (txtwind_lines - 1)) {
 				ws_screen_put_tile(screen1_table, pal_prefix_hlt | 32, wnd_x + 2, wnd_y + 2 + arrow_y);
 				arrow_y++;
 				ws_screen_put_tile(screen1_table, pal_prefix_hlt | 16, wnd_x + 2, wnd_y + 2 + arrow_y);
 			}
-		} else if (input_keys & KEY_A) {
+		} else if (input_keys & WS_KEY_A) {
 			result = arrow_y;
 			break;
-		} else if (input_keys & KEY_B) {
+		} else if (input_keys & WS_KEY_B) {
 			break;
 		}
 
@@ -247,7 +247,6 @@ uint8_t txtwind_run(uint8_t render_mode) {
 	} else if (render_mode == RENDER_MODE_MENU) {
 		result = txtwind_run_menu();
 	}
-
 
 	input_wait_clear();
 

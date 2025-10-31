@@ -4,7 +4,7 @@
 
 extern uint16_t *screen1_table;
 
-#define USE_COLOR_RENDERER ws_system_is_color()
+#define USE_COLOR_RENDERER ws_system_is_color_model()
 // #define USE_COLOR_RENDERER 0
 // #define USE_COLOR_RENDERER 1
 

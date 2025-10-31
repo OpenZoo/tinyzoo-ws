@@ -18,12 +18,12 @@ void input_update_vbl(void) {
 }
 
 void input_reset(void) {
-	cpu_irq_disable();
-	input_keys = 0;
-	input_keys_repressed = 0;
-	input_keys_released = 0;
-	input_update_vbl();
-	cpu_irq_enable();
+	ia16_critical({
+		input_keys = 0;
+		input_keys_repressed = 0;
+		input_keys_released = 0;
+		input_update_vbl();		
+	});
 }
 
 //#define JOY_REPEAT_DELAY 15
@@ -38,11 +38,11 @@ void input_update(void) {
 	uint16_t keys_repressed;
 	uint16_t keys_released;
 
-	cpu_irq_disable();
-	keys_pressed = input_keys;
-	keys_repressed = input_keys_repressed;
-	keys_released = input_keys_released;
-	cpu_irq_enable();
+	ia16_critical({
+		keys_pressed = input_keys;
+		keys_repressed = input_keys_repressed;
+		keys_released = input_keys_released;\
+	});
 
 	input_delta_x = 0;
 	input_delta_y = 0;
@@ -72,13 +72,13 @@ KeyRepressed:
 						input_vbls_next[input_id] = vbl_ticks + JOY_REPEAT_DELAY;
 					}
 				}
-				if (input_mask == KEY_UP) {
+				if (input_mask == WS_KEY_UP) {
 					input_delta_y = -1;
-				} else if (input_mask == KEY_DOWN) {
+				} else if (input_mask == WS_KEY_DOWN) {
 					input_delta_y = 1;
-				} else if (input_mask == KEY_LEFT) {
+				} else if (input_mask == WS_KEY_LEFT) {
 					input_delta_x = -1;
-				} else if (input_mask == KEY_RIGHT) {
+				} else if (input_mask == WS_KEY_RIGHT) {
 					input_delta_x = 1;
 				}
 				break;

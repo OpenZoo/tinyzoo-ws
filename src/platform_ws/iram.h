@@ -15,7 +15,7 @@ IRAM_EXTERN uint8_t _wave_data[0x10];
 __attribute__((section(".iramx_2000"), used))
 IRAM_EXTERN uint8_t _tile_data[0x1000];
 __attribute__((section(".iramx_4000"), used))
-IRAM_EXTERN uint8_t _tile2_data[0x1000];
+IRAM_EXTERN uint8_t _tile2_data[0x3000];
 __attribute__((section(".iramx_3000"), used))
 IRAM_EXTERN uint8_t _screen_data[0x1000];
 

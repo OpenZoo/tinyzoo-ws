@@ -3,6 +3,8 @@
 #include "input.h"
 #include "renderer.h"
 #include "timer.h"
+#include "ws/sound.h"
+#include "ws/system.h"
 
 extern uint16_t dhsecs;
 extern uint8_t vbl_ticks;
@@ -19,46 +21,42 @@ void __attribute__((interrupt)) vblank_int_handler(void) {
 	game_transition_step();
 #endif
 
-	ws_hwint_ack(HWINT_VBLANK);
+	ws_int_ack(WS_INT_ACK_VBLANK);
 }
 
 void vbl_timer_init(void) {
-        cpu_irq_disable();
-
-        ws_hwint_set_handler(HWINT_IDX_VBLANK, vblank_int_handler);
-        ws_hwint_enable(HWINT_VBLANK);
-
-        cpu_irq_enable();
+	ia16_critical({
+        ws_int_set_handler(WS_INT_VBLANK, vblank_int_handler);
+        ws_int_enable(WS_INT_ENABLE_VBLANK);		
+	});
 }
 
 void sound_reset(void) {
-	outportb(IO_SND_CH_CTRL, 0x00);
+	outportb(WS_SOUND_CH_CTRL_PORT, 0x00);
 }
 
 void timer_init(void) {
 	// init audio
-	outportb(IO_SND_WAVE_BASE, SND_WAVE_BASE(0x1FC0));
-	outportb(IO_SND_VOL_CH4, 0x77);
-	outportb(IO_SND_VOL_CH2_VOICE, SND_VOL_CH2_HALF);
-	outportb(IO_SND_OUT_CTRL,
-		SND_OUT_VOLUME_100 | SND_OUT_HEADPHONES_ENABLE | SND_OUT_SPEAKER_ENABLE);
-	outportb(IO_SND_CH_CTRL, 0x00);
+	ws_sound_reset();
+	ws_sound_set_wavetable_address((void*) 0x1FC0);
+	outportb(WS_SOUND_VOL_CH4_PORT, 0x77);
+	outportb(WS_SOUND_VOICE_VOL_PORT, WS_SOUND_VOICE_VOL_LEFT_HALF | WS_SOUND_VOICE_VOL_RIGHT_HALF);
+	outportb(WS_SOUND_OUT_CTRL_PORT,
+		WS_SOUND_OUT_CTRL_SPEAKER_VOLUME_400 | WS_SOUND_OUT_CTRL_HEADPHONE_ENABLE | WS_SOUND_OUT_CTRL_SPEAKER_ENABLE);
+	outportb(WS_SOUND_CH_CTRL_PORT, 0x00);
 
 	for (uint8_t i = 0; i < 16; i++) {
 		*((uint16_t*) (0x1FF0 + i)) = (i & 8) ? 0x00 : 0xFF;
 	}
 
-	cpu_irq_disable();
+	ia16_critical({
+		dhsecs = 0;
 
-	dhsecs = 0;
+		ws_int_set_handler(WS_INT_HBL_TIMER, timer_int_handler);
+		ws_int_set_handler(WS_INT_LINE_MATCH, line_int_handler);
 
-        ws_hwint_set_handler(HWINT_IDX_HBLANK_TIMER, timer_int_handler);
-        ws_hwint_set_handler(HWINT_IDX_LINE, line_int_handler);
+		ws_timer_hblank_start_repeat(660);
 
-        outportw(IO_HBLANK_TIMER, 660);
-        outportb(IO_TIMER_CTRL, HBLANK_TIMER_ENABLE | HBLANK_TIMER_REPEAT);
-
-        ws_hwint_enable(HWINT_HBLANK_TIMER);
-
-	cpu_irq_enable();
+		ws_int_enable(WS_INT_ENABLE_HBL_TIMER);
+	});
 }

@@ -21,7 +21,7 @@ uint8_t _current_bank;
 uint8_t bank_mask;
 
 void zoo_switch_init(void) {
-	uint8_t linear_offset = (inportb(IO_BANK_ROM_LINEAR) << 4) | 0xF;
+	uint8_t linear_offset = (inportb(WS_CART_BANK_ROML_PORT) << 4) | 0xF;
 	uint8_t rom_mask = bank_masks[* ((uint8_t __far*) MK_FP(0xFFFF, 0x000A))];
 	bank_mask = rom_mask & linear_offset;
 }
@@ -29,7 +29,7 @@ void zoo_switch_init(void) {
 void zoo_switch_rom(uint8_t bank) {
 	bank |= bank_mask;
 	_current_bank = bank;
-	outportb(IO_BANK_ROM0, bank);
+	outportb(WS_CART_BANK_ROM0_PORT, bank);
 }
 
 uint8_t zoo_get_ram_bank_count(void) {

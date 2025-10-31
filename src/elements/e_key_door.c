@@ -8,8 +8,8 @@
 #include "../sound_consts.h"
 #include "../timer.h"
 
-extern const char __far* msg_key_pickup[];
-extern const char __far* msg_door_open[];
+extern const char __far* const __far msg_key_pickup[];
+extern const char __far* const __far msg_door_open[];
 
 static void show_key_pickup_no(uint8_t key) {
 	display_message(200, NULL, msg_key_pickup_no, msg_key_pickup[key & 0x07]);

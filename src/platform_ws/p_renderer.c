@@ -12,6 +12,9 @@
 #include "renderer_sidebar.h"
 #include "../../res/font_default.h"
 #include "../../res/font_small.h"
+#include "ws/display.h"
+#include "ws/memory.h"
+#include "ws/system.h"
 
 #define COL_LVL_0 0
 #define COL_LVL_1 5
@@ -27,22 +30,22 @@ uint8_t renderer_mode;
 uint8_t *sidebar_tile_data;
 
 const uint16_t __far ws_subpal_tile[16] = {
-	SCR_ENTRY_PALETTE(4) | 0x0000,
-	SCR_ENTRY_PALETTE(5) | 0x0000,
-	SCR_ENTRY_PALETTE(6) | 0x0000,
-	SCR_ENTRY_PALETTE(7) | 0x0000,
-	SCR_ENTRY_PALETTE(12) | 0x0000,
-	SCR_ENTRY_PALETTE(13) | 0x0000,
-	SCR_ENTRY_PALETTE(14) | 0x0000,
-	SCR_ENTRY_PALETTE(15) | 0x0000,
-	SCR_ENTRY_PALETTE(4) | 0x2000,
-	SCR_ENTRY_PALETTE(5) | 0x2000,
-	SCR_ENTRY_PALETTE(6) | 0x2000,
-	SCR_ENTRY_PALETTE(7) | 0x2000,
-	SCR_ENTRY_PALETTE(12) | 0x2000,
-	SCR_ENTRY_PALETTE(13) | 0x2000,
-	SCR_ENTRY_PALETTE(14) | 0x2000,
-	SCR_ENTRY_PALETTE(15) | 0x2000
+	WS_SCREEN_ATTR_PALETTE(4) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(5) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(6) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(7) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(12) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(13) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(14) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(15) | 0x0000,
+	WS_SCREEN_ATTR_PALETTE(4) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(5) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(6) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(7) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(12) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(13) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(14) | 0x2000,
+	WS_SCREEN_ATTR_PALETTE(15) | 0x2000
 };
 
 const uint8_t __far ws_subpal_idx_mono[16] = {
@@ -53,41 +56,41 @@ const uint8_t __far ws_subpal_idx_mono[16] = {
 };
 
 const uint16_t __far ws_subpal_tile_mono[16] = {
-	SCR_ENTRY_PALETTE(15), // 0
-	SCR_ENTRY_PALETTE(14),
-	SCR_ENTRY_PALETTE(7),
-	SCR_ENTRY_PALETTE(7),
-	SCR_ENTRY_PALETTE(13), // 4
-	SCR_ENTRY_PALETTE(13),
-	SCR_ENTRY_PALETTE(12),
-	SCR_ENTRY_PALETTE(6),
-	SCR_ENTRY_PALETTE(12), // 8
-	SCR_ENTRY_PALETTE(12),
-	SCR_ENTRY_PALETTE(5),
-	SCR_ENTRY_PALETTE(5),
-	SCR_ENTRY_PALETTE(7), // 12
-	SCR_ENTRY_PALETTE(7),
-	SCR_ENTRY_PALETTE(4),
-	SCR_ENTRY_PALETTE(4)
+	WS_SCREEN_ATTR_PALETTE(15), // 0
+	WS_SCREEN_ATTR_PALETTE(14),
+	WS_SCREEN_ATTR_PALETTE(7),
+	WS_SCREEN_ATTR_PALETTE(7),
+	WS_SCREEN_ATTR_PALETTE(13), // 4
+	WS_SCREEN_ATTR_PALETTE(13),
+	WS_SCREEN_ATTR_PALETTE(12),
+	WS_SCREEN_ATTR_PALETTE(6),
+	WS_SCREEN_ATTR_PALETTE(12), // 8
+	WS_SCREEN_ATTR_PALETTE(12),
+	WS_SCREEN_ATTR_PALETTE(5),
+	WS_SCREEN_ATTR_PALETTE(5),
+	WS_SCREEN_ATTR_PALETTE(7), // 12
+	WS_SCREEN_ATTR_PALETTE(7),
+	WS_SCREEN_ATTR_PALETTE(4),
+	WS_SCREEN_ATTR_PALETTE(4)
 };
 
 const uint16_t __far ws_palette[16] = {
-	RGB(COL_LVL_0, COL_LVL_0, COL_LVL_0),
-	RGB(COL_LVL_0, COL_LVL_0, COL_LVL_2),
-	RGB(COL_LVL_0, COL_LVL_2, COL_LVL_0),
-	RGB(COL_LVL_0, COL_LVL_2, COL_LVL_2),
-	RGB(COL_LVL_2, COL_LVL_0, COL_LVL_0),
-	RGB(COL_LVL_2, COL_LVL_0, COL_LVL_2),
-	RGB(COL_LVL_2, COL_LVL_1, COL_LVL_0),
-	RGB(COL_LVL_2, COL_LVL_2, COL_LVL_2),
-	RGB(COL_LVL_1, COL_LVL_1, COL_LVL_1),
-	RGB(COL_LVL_1, COL_LVL_1, COL_LVL_3),
-	RGB(COL_LVL_1, COL_LVL_3, COL_LVL_1),
-	RGB(COL_LVL_1, COL_LVL_3, COL_LVL_3),
-	RGB(COL_LVL_3, COL_LVL_1, COL_LVL_1),
-	RGB(COL_LVL_3, COL_LVL_1, COL_LVL_3),
-	RGB(COL_LVL_3, COL_LVL_3, COL_LVL_1),
-	RGB(COL_LVL_3, COL_LVL_3, COL_LVL_3)
+	WS_RGB(COL_LVL_0, COL_LVL_0, COL_LVL_0),
+	WS_RGB(COL_LVL_0, COL_LVL_0, COL_LVL_2),
+	WS_RGB(COL_LVL_0, COL_LVL_2, COL_LVL_0),
+	WS_RGB(COL_LVL_0, COL_LVL_2, COL_LVL_2),
+	WS_RGB(COL_LVL_2, COL_LVL_0, COL_LVL_0),
+	WS_RGB(COL_LVL_2, COL_LVL_0, COL_LVL_2),
+	WS_RGB(COL_LVL_2, COL_LVL_1, COL_LVL_0),
+	WS_RGB(COL_LVL_2, COL_LVL_2, COL_LVL_2),
+	WS_RGB(COL_LVL_1, COL_LVL_1, COL_LVL_1),
+	WS_RGB(COL_LVL_1, COL_LVL_1, COL_LVL_3),
+	WS_RGB(COL_LVL_1, COL_LVL_3, COL_LVL_1),
+	WS_RGB(COL_LVL_1, COL_LVL_3, COL_LVL_3),
+	WS_RGB(COL_LVL_3, COL_LVL_1, COL_LVL_1),
+	WS_RGB(COL_LVL_3, COL_LVL_1, COL_LVL_3),
+	WS_RGB(COL_LVL_3, COL_LVL_3, COL_LVL_1),
+	WS_RGB(COL_LVL_3, COL_LVL_3, COL_LVL_3)
 };
 
 uint8_t draw_offset_x = 0;
@@ -96,7 +99,7 @@ uint8_t renderer_scrolling;
 
 void text_set_opaque_bg(uint8_t color) {
 	for (uint8_t i = 0; i < 8; i++) {
-		MEM_COLOR_PALETTE(ws_subpal_idx[i])[0] = ws_palette[color];
+		WS_DISPLAY_COLOR_MEM(ws_subpal_idx[i])[0] = ws_palette[color];
 	}
 }
 
@@ -108,8 +111,8 @@ void text_set_sidebar_height(uint8_t height) {
 #endif
 	uint8_t count = height * 28;
 	if (count >= first) count -= first;
-	outportb(IO_SPR_FIRST, first);
-	outportb(IO_SPR_COUNT, count);
+	outportb(WS_SPR_FIRST_PORT, first);
+	outportb(WS_SPR_COUNT_PORT, count);
 }
 
 uint16_t *sidebar_sprite_table;
@@ -127,30 +130,30 @@ static const uint8_t __far ws_sidebar_palettes[28] = {
 
 static void text_rebuild_color_palette(const uint16_t __far* palette) {
 	for (uint8_t i = 0; i < 8; i++) {
-		MEM_COLOR_PALETTE(ws_subpal_idx[i])[1] = palette[i];
-		MEM_COLOR_PALETTE(ws_subpal_idx[i])[2] = palette[i + 8];
+		WS_DISPLAY_COLOR_MEM(ws_subpal_idx[i])[1] = palette[i];
+		WS_DISPLAY_COLOR_MEM(ws_subpal_idx[i])[2] = palette[i + 8];
 	}
 	// border colors
-	MEM_COLOR_PALETTE(PAL_NONE)[0] = palette[0];
-	MEM_COLOR_PALETTE(PAL_NONE)[1] = palette[0];
-	MEM_COLOR_PALETTE(PAL_NONE)[2] = palette[1];
-	MEM_COLOR_PALETTE(PAL_NONE)[3] = palette[0];
+	WS_DISPLAY_COLOR_MEM(PAL_NONE)[0] = palette[0];
+	WS_DISPLAY_COLOR_MEM(PAL_NONE)[1] = palette[0];
+	WS_DISPLAY_COLOR_MEM(PAL_NONE)[2] = palette[1];
+	WS_DISPLAY_COLOR_MEM(PAL_NONE)[3] = palette[0];
 
-	MEM_COLOR_PALETTE(PAL_MENU)[0] = palette[0];
-	MEM_COLOR_PALETTE(PAL_MENU)[1] = palette[15];
-	MEM_COLOR_PALETTE(PAL_MENU)[2] = palette[12];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[0] = palette[1];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[1] = palette[15];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[2] = palette[14];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR0)[3] = palette[13];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[0] = palette[1];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[1] = palette[9];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[2] = palette[10];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR1)[3] = palette[11];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[0] = palette[1];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[1] = palette[12];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[2] = palette[13];
-	MEM_COLOR_PALETTE(PAL_SIDEBAR2)[3] = palette[6];
+	WS_DISPLAY_COLOR_MEM(PAL_MENU)[0] = palette[0];
+	WS_DISPLAY_COLOR_MEM(PAL_MENU)[1] = palette[15];
+	WS_DISPLAY_COLOR_MEM(PAL_MENU)[2] = palette[12];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR0)[0] = palette[1];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR0)[1] = palette[15];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR0)[2] = palette[14];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR0)[3] = palette[13];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR1)[0] = palette[1];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR1)[1] = palette[9];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR1)[2] = palette[10];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR1)[3] = palette[11];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR2)[0] = palette[1];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR2)[1] = palette[12];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR2)[2] = palette[13];
+	WS_DISPLAY_COLOR_MEM(PAL_SIDEBAR2)[3] = palette[6];
 }
 
 static void text_rebuild_sprite_table(void) {
@@ -162,13 +165,13 @@ static void text_rebuild_sprite_table(void) {
 	i = 28;
 #else
 	for (; i < 28; i++) {
-		*(table++) = SCR_ENTRY_PALETTE((uint16_t) ws_sidebar_palettes[i]) | (sidebar_tile_offset + i) | (1 << 13);
+		*(table++) = WS_SCREEN_ATTR_PALETTE((uint16_t) ws_sidebar_palettes[i]) | (sidebar_tile_offset + i) | (1 << 13);
 		*(table++) = (i << 11) | 136;
 	}
 #endif
 
 	for (; i < 112; i++) {
-		*(table++) = SCR_ENTRY_PALETTE(PAL_SIDEBAR0) | (1 << 13);
+		*(table++) = WS_SCREEN_ATTR_PALETTE(PAL_SIDEBAR0) | (1 << 13);
 		table++;
 	}
 }
@@ -179,13 +182,13 @@ void text_init(uint8_t mode) {
 		draw_offset_y = 7;
 	}
 
-	outportw(IO_DISPLAY_CTRL, 7 << 8);
-	outportb(IO_SPR_FIRST, 0);
+	outportw(WS_DISPLAY_CTRL_PORT, 7 << 8);
+	outportb(WS_SPR_FIRST_PORT, 0);
 
 	wsx_planar_unpack((uint8_t*) 0x2000, 256 * 8, _font_default_bin, WSX_PLANAR_UNPACK_1BPP_TO_2BPP_ZERO(1));
 
 	if (USE_COLOR_RENDERER) {
-		ws_mode_set(WS_MODE_COLOR);
+		ws_system_set_mode(WS_MODE_COLOR);
 		text_rebuild_color_palette(ws_palette);
 
 		// fill bg / fg
@@ -198,14 +201,14 @@ void text_init(uint8_t mode) {
 		sidebar_tile_data = (uint8_t*) 0x3000;
 
 		// configure screen 1 (bg) / 2 (fg)
-		outportb(IO_SCR_BASE, SCR1_BASE(0x6000) | SCR2_BASE(0x6800));
-		outportb(IO_SPR_BASE, SPR_BASE(0x3200));
+		ws_display_set_screen_addresses((void*) 0x6000, (void*) 0x6800);
+		ws_display_set_sprite_address((void*) 0x3200);
 
 		screen1_table = (uint16_t*) 0x6000;
 
 		text_rebuild_sprite_table();
 	} else {
-		ws_display_set_shade_lut(SHADE_LUT(0, 2, 4, 6, 8, 10, 12, 15));
+		ws_display_set_shade_lut(WS_DISPLAY_SHADE_LUT(0, 2, 4, 6, 8, 10, 12, 15));
 
 		// fill bg / fg
 		ws_screen_fill_tiles((uint16_t*) 0x6000, 219 | ws_subpal_tile[0], 0, 0, 32, 32);
@@ -224,8 +227,8 @@ void text_init(uint8_t mode) {
 		sidebar_tile_data = (uint8_t*) 0x3000;
 
 		// configure screen 1 (bg) / 2 (fg)
-		outportb(IO_SCR_BASE, SCR1_BASE(0x3000) | SCR2_BASE(0x3800));
-		outportb(IO_SPR_BASE, SPR_BASE(0x3800));
+		ws_display_set_screen_addresses((void*) 0x3000, (void*) 0x3800);
+		ws_display_set_sprite_address((void*) 0x3800);
 
 		screen1_table = (uint16_t*) 0x3000;
 	}
@@ -256,18 +259,18 @@ void text_reinit(uint8_t mode) {
 #else
 		uint8_t y_offset = mode == RENDER_MODE_TITLE ? 136 : 128;
 #endif
-       		for (uint8_t i = 0; i < 84; i++) {
+		for (uint8_t i = 0; i < 84; i++) {
 			table++;
-                	*(table++) = ((i % 28) << 11) | (y_offset - ((i / 28) << 3));
-        	}
+			*(table++) = ((i % 28) << 11) | (y_offset - ((i / 28) << 3));
+		}
 
 		// enable display (in some modes)
 		if (!USE_COLOR_RENDERER) {
 			wait_vbl_done();
 		}
-		outportw(IO_DISPLAY_CTRL, DISPLAY_SCR1_ENABLE | DISPLAY_SCR2_ENABLE | DISPLAY_SPR_ENABLE);
+		outportw(WS_DISPLAY_CTRL_PORT, WS_DISPLAY_CTRL_SCR1_ENABLE | WS_DISPLAY_CTRL_SCR2_ENABLE | WS_DISPLAY_CTRL_SPR_ENABLE);
 	} else if (mode == RENDER_MODE_NONE) {
-		outportw(IO_DISPLAY_CTRL, 7 << 8);
+		outportw(WS_DISPLAY_CTRL_PORT, 7 << 8);
 	}
 }
 
@@ -296,52 +299,52 @@ void text_scroll(int8_t dx, int8_t dy) {
 }
 
 void text_update(void) {
-	outportb(IO_SCR1_SCRL_X, draw_offset_x << 3);
-	outportb(IO_SCR2_SCRL_X, draw_offset_x << 3);
-	outportb(IO_SCR1_SCRL_Y, draw_offset_y << 3);
-	outportb(IO_SCR2_SCRL_Y, draw_offset_y << 3);
+	outportb(WS_SCR1_SCRL_X_PORT, draw_offset_x << 3);
+	outportb(WS_SCR2_SCRL_X_PORT, draw_offset_x << 3);
+	outportb(WS_SCR1_SCRL_Y_PORT, draw_offset_y << 3);
+	outportb(WS_SCR2_SCRL_Y_PORT, draw_offset_y << 3);
 }
 
 void sidebar_set_message_color(uint8_t color) {
 	if (USE_COLOR_RENDERER) {
-		MEM_COLOR_PALETTE(PAL_MESSAGE)[0] = 0x0000;
-		MEM_COLOR_PALETTE(PAL_MESSAGE)[1] = ws_palette[color & 0x0F];
+		WS_DISPLAY_COLOR_MEM(PAL_MESSAGE)[0] = 0x0000;
+		WS_DISPLAY_COLOR_MEM(PAL_MESSAGE)[1] = ws_palette[color & 0x0F];
 	} else {
 		outportw(0x20 + (PAL_MESSAGE << 1), (ws_subpal_idx_mono[color & 0x0F] << 4) | 7);
 	}
 }
 
 static uint8_t sidebar_show_line(const uint8_t __far* line, uint8_t sb_offset) {
-        if (line != NULL) {
-                uint8_t slen = *(line++);
-                if (slen > 0) {
+	if (line != NULL) {
+		uint8_t slen = *(line++);
+		if (slen > 0) {
 			volatile uint16_t *sptr = &sidebar_sprite_table[sb_offset << 1];
 			for (uint8_t i = 0; i < 28; i++, sptr += 2) {
-				*sptr = SCR_ENTRY_PALETTE(PAL_MESSAGE) | (1 << 13);
+				*sptr = WS_SCREEN_ATTR_PALETTE(PAL_MESSAGE) | (1 << 13);
 			}
 			uint8_t soffset = 14 - (slen >> 1);
 			sptr = &sidebar_sprite_table[(sb_offset + soffset) << 1];
 			for (uint8_t i = 0; i < slen; i++, sptr += 2) {
-				*sptr = line[i] | SCR_ENTRY_PALETTE(PAL_MESSAGE) | (1 << 13);
+				*sptr = line[i] | WS_SCREEN_ATTR_PALETTE(PAL_MESSAGE) | (1 << 13);
 			}
-                        return sb_offset + 28;
-                }
-        }
+			return sb_offset + 28;
+		}
+	}
 	return sb_offset;
 }
 
 void sidebar_show_message(const char __far* line1, uint8_t bank1, const char __far* line2, uint8_t bank2, const char __far* line3, uint8_t bank3) {
 	text_set_sidebar_height(1);
-        uint8_t sb_offset = 28;
+	uint8_t sb_offset = 28;
 
-        uint8_t prev_bank = _current_bank;
-        ZOO_SWITCH_ROM(bank3);
-        sb_offset = sidebar_show_line(line3, sb_offset);
-        ZOO_SWITCH_ROM(bank2);
-        sb_offset = sidebar_show_line(line2, sb_offset);
-        ZOO_SWITCH_ROM(bank1);
-        sb_offset = sidebar_show_line(line1, sb_offset);
-        ZOO_SWITCH_ROM(prev_bank);
+	uint8_t prev_bank = _current_bank;
+	ZOO_SWITCH_ROM(bank3);
+	sb_offset = sidebar_show_line(line3, sb_offset);
+	ZOO_SWITCH_ROM(bank2);
+	sb_offset = sidebar_show_line(line2, sb_offset);
+	ZOO_SWITCH_ROM(bank1);
+	sb_offset = sidebar_show_line(line1, sb_offset);
+	ZOO_SWITCH_ROM(prev_bank);
 
 	text_set_sidebar_height(sb_offset / 28);
 }

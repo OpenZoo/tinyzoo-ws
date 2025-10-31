@@ -161,7 +161,7 @@ extern uint8_t cheat_active;
 #define ZOO_STAT_AT(x, y) zoo_stats[(get_stat_id_at((x), (y)) + 1)]
 
 #define ZOO_BUSYLOOP(cond) while ((cond)) { \
-	cpu_halt(); \
+	ia16_halt(); \
 }
 
 #endif
